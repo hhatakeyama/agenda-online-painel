@@ -21,7 +21,7 @@ export default function Navbar() {
 
   const menu = [
     { link: `/usuarios/${userData?.id}`, label: 'Perfil', icon: IconUser, visible: funcionarioAccess },
-    { link: '/empresa', label: 'Empresa', icon: IconBuilding, visible: adminAccess },
+    { link: '/empresas', label: 'Empresas', icon: IconBuilding, visible: adminAccess },
     { link: '/categorias', label: 'Categorias', icon: IconCategory, visible: adminAccess || gerenteAccess },
     { link: '/servicos', label: 'Serviços', icon: IconChisel, visible: adminAccess || gerenteAccess },
     { link: '/funcionarios', label: 'Funcionários', icon: IconTools, visible: adminAccess || gerenteAccess },
@@ -49,7 +49,7 @@ export default function Navbar() {
     <nav className={classes.navbar}>
       <div className={classes.navbarMain}>
         <Link href="/" className={classes.header} justify="space-between">
-          Agenda Online
+          Agendle
         </Link>
         {isAuthenticated && menuItens}
       </div>

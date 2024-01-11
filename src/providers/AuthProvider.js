@@ -22,8 +22,6 @@ function useProvideAuth() {
   const [loading, setLoading] = useState(null)
   const [isAuthenticated, setIsAuthenticated] = useState(null)
   const [isValidating, setIsValidating] = useState(null)
-  // const [permissionsData, setPermissionsData] = useState(['admin'])
-  // const permissionsIsValidating = false
 
   // // Fetch
   const { data: userData, isValidating: userIsValidating } = useFetch([

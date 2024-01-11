@@ -12,7 +12,7 @@ import Navbar from '@/components/navigation/Navbar'
 import Providers from './Providers'
 
 export const metadata = {
-  title: 'Agenda Online Admin',
+  title: 'Agendle Admin',
   description: 'Painel',
 }
 

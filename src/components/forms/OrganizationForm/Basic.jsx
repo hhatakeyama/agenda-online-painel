@@ -1,4 +1,4 @@
-import { Alert, Button, Grid, Group, LoadingOverlay, Select, Stack, useMantineTheme } from '@mantine/core'
+import { Alert, Button, Grid, Group, LoadingOverlay, Select, Stack, TextInput, useMantineTheme } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
@@ -10,23 +10,11 @@ import errorHandler from '@/utils/errorHandler'
 
 import * as Fields from './Fields'
 
-export default function Basic({ userData, mutate }) {
+export default function Basic({ organizationData, mutate }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
-  const { isValidating, permissionsData } = useAuth()
-
-  // Constants
-  const { permissions } = permissionsData || {}
-  const superAccess = !!permissions?.find(perm => perm === 's') || false
-  const adminAccess = !!permissions?.find(perm => perm === 'a') || false
-  const gerenteAccess = !!permissions?.find(perm => perm === 'g') || false
-
-  const tipos = [
-    { value: 's', label: 'Superadmin', visible: superAccess },
-    { value: 'a', label: 'Administrador', visible: superAccess || adminAccess },
-    { value: 'g', label: 'Gerente', visible: superAccess || adminAccess || gerenteAccess },
-  ]
+  const { isValidating } = useAuth()
 
   // States
   const [error, setError] = useState(null)
@@ -34,12 +22,12 @@ export default function Basic({ userData, mutate }) {
 
   // Form
   const initialValues = {
-    name: userData?.name || '',
-    email: userData?.email || '',
+    name: organizationData?.name || '',
+    email: organizationData?.email || '',
     password: '',
     confirmPassword: '',
-    type: userData?.type || '',
-    status: userData?.status || '0',
+    type: 'f',
+    status: organizationData?.status || '0',
   }
 
   const schema = Yup.object().shape({
@@ -47,7 +35,6 @@ export default function Basic({ userData, mutate }) {
     email: Yup.string().email().required(),
     password: Yup.string().nullable(),
     confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Senhas diferentes'),
-    type: Yup.string().required("Tipo obrigatório"),
     status: Yup.string().nullable(),
   })
 
@@ -65,7 +52,7 @@ export default function Basic({ userData, mutate }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        .patch(`/admin/usuarios/${userData?.id}/`, {
+        .patch(`/admin/usuarios/${organizationData?.id}/`, {
           ...newValues, ...(newValues ? { password_confirmation: newValues.confirmPassword } : {})
         }) // Verificar usuário logado no painel
         .then(() => {
@@ -98,25 +85,17 @@ export default function Basic({ userData, mutate }) {
           <Stack>
             <Grid>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.NameField inputProps={{ ...form.getInputProps('name'), required: true, disabled: isSubmitting }} />
+                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Razão Social" placeholder="Razão Social" type="text" />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.EmailField inputProps={{ ...form.getInputProps('email'), required: true, disabled: isSubmitting }} />
+                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Nome Fantasia" placeholder="Nome Fantasia" type="text" />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.PasswordField inputProps={{ ...form.getInputProps('password'), disabled: isSubmitting }} />
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.ConfirmPasswordField inputProps={{ ...form.getInputProps('confirmPassword'), disabled: isSubmitting }} />
-              </Grid.Col>
-              <Grid.Col span={6}>
-                <Select
-                  required
-                  label="Tipo"
-                  placeholder="Tipo"
-                  data={tipos}
-                  disabled={isSubmitting}
-                  {...form.getInputProps('type')}
+                <Fields.TaxDocumentField
+                  inputProps={{
+                    ...form.getInputProps('name'),
+                    disabled: isSubmitting,
+                  }}
                 />
               </Grid.Col>
               <Grid.Col span={6}>

@@ -10,9 +10,9 @@ import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { dateToHuman } from '@/utils'
 
-import classes from './Usuarios.module.css'
+import classes from './Categories.module.css'
 
-export default function Usuarios() {
+export default function Categories() {
   // Hooks
   const router = useRouter()
   const { isAuthenticated, permissionsData } = useAuth()
@@ -50,7 +50,7 @@ export default function Usuarios() {
   return (
     <Container size="100%" mb="50px">
       <Stack>
-        <Text>Usuários</Text>
+        <Text>Categorias</Text>
 
         <Box pos="relative">
           <LoadingOverlay
@@ -62,7 +62,7 @@ export default function Usuarios() {
         </Box>
         <ScrollArea>
           <TextInput
-            placeholder="Buscar por nome ou e-mail"
+            placeholder="Buscar por nome"
             mb="md"
             leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
             value={search}
@@ -72,8 +72,7 @@ export default function Usuarios() {
           <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
             <Table.Tbody>
               <Table.Tr>
-                <Th>Nome</Th>
-                <Th>E-mail</Th>
+                <Th>Categoria</Th>
                 <Th>Ativo</Th>
                 <Th>Data Cadastro</Th>
                 <Th>Ações</Th>
@@ -84,21 +83,20 @@ export default function Usuarios() {
                 return (
                   <Table.Tr key={row.id} className={classes.tr}>
                     <Table.Td className={classes.td}>{row.name}</Table.Td>
-                    <Table.Td className={classes.td}>{row.email}</Table.Td>
                     <Table.Td className={classes.td}><Display.Status status={row.status} /></Table.Td>
                     <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
                     <Table.Td className={classes.td}>
                       <Group gap="xs">
-                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/usuarios/${row.id}`}>Editar</Button>
+                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/categorias/${row.id}`}>Editar</Button>
                       </Group>
                     </Table.Td>
                   </Table.Tr>
                 )
               }) : (
                 <Table.Tr>
-                  <Table.Td colSpan={5}>
+                  <Table.Td colSpan={4}>
                     <Text fw={500} ta="center">
-                      Nenhum usuário encontrado
+                      Nenhuma categoria encontrada
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -106,7 +104,7 @@ export default function Usuarios() {
             </Table.Tbody>
             <Table.Tfoot>
               <Table.Tr>
-                <Table.Td colSpan={5}>
+                <Table.Td colSpan={4}>
                   <Center>
                     <Pagination total={data?.last_page} defaultValue={pagina} onChange={setPagina} />
                   </Center>

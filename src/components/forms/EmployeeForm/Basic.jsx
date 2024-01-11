@@ -2,6 +2,7 @@ import { Alert, Button, Grid, Group, LoadingOverlay, Select, Stack, useMantineTh
 import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import Image from 'next/image'
 import React, { useState } from 'react'
 
 import { useAuth } from '@/providers/AuthProvider'
@@ -14,19 +15,7 @@ export default function Basic({ usuarioData, mutate }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
-  const { isValidating, permissionsData } = useAuth()
-
-  // Constants
-  const { permissions } = permissionsData || {}
-  const superAccess = !!permissions?.find(perm => perm === 's') || false
-  const adminAccess = !!permissions?.find(perm => perm === 'a') || false
-  const gerenteAccess = !!permissions?.find(perm => perm === 'g') || false
-
-  const tipos = [
-    { value: 's', label: 'Superadmin', visible: superAccess },
-    { value: 'a', label: 'Administrador', visible: superAccess || adminAccess },
-    { value: 'g', label: 'Gerente', visible: superAccess || adminAccess || gerenteAccess },
-  ]
+  const { isValidating } = useAuth()
 
   // States
   const [error, setError] = useState(null)
@@ -38,7 +27,7 @@ export default function Basic({ usuarioData, mutate }) {
     email: usuarioData?.email || '',
     password: '',
     confirmPassword: '',
-    type: usuarioData?.type || '',
+    type: 'f',
     status: usuarioData?.status || '0',
   }
 
@@ -47,7 +36,6 @@ export default function Basic({ usuarioData, mutate }) {
     email: Yup.string().email().required(),
     password: Yup.string().nullable(),
     confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Senhas diferentes'),
-    type: Yup.string().required("Tipo obrigatório"),
     status: Yup.string().nullable(),
   })
 
@@ -94,7 +82,10 @@ export default function Basic({ usuarioData, mutate }) {
     <form onSubmit={form.onSubmit(handleSubmit)} style={{ position: 'relative' }}>
       <LoadingOverlay visible={isValidating} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       <Grid>
-        <Grid.Col span={{ base: 12, lg: 6 }}>
+        <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 3, xl: 2 }}>
+          <Image alt="Foto destaque" src={"https://admin.gatacompleta.com"} width={200} height={200} radius="md" />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, md: 8, lg: 6 }}>
           <Stack>
             <Grid>
               <Grid.Col span={{ base: 12, sm: 6 }}>
@@ -108,16 +99,6 @@ export default function Basic({ usuarioData, mutate }) {
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.ConfirmPasswordField inputProps={{ ...form.getInputProps('confirmPassword'), disabled: isSubmitting }} />
-              </Grid.Col>
-              <Grid.Col span={6}>
-                <Select
-                  required
-                  label="Tipo"
-                  placeholder="Tipo"
-                  data={tipos}
-                  disabled={isSubmitting}
-                  {...form.getInputProps('type')}
-                />
               </Grid.Col>
               <Grid.Col span={6}>
                 <Select

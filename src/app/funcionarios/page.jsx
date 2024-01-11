@@ -1,16 +1,18 @@
 'use client'
 
-import { Box, Center, Container, Grid, Loader, LoadingOverlay, Pagination, rem, ScrollArea, Select, Stack, Table, Text, TextInput } from '@mantine/core'
+import { Box, Button, Center, Container, Group, Loader, LoadingOverlay, Pagination, rem, ScrollArea, Stack, Table, Text, TextInput } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import * as Display from '@/components/display'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
+import { dateToHuman } from '@/utils'
 
-import classes from './MaisAcessadas.module.css'
+import classes from './Employees.module.css'
 
-export default function MaisAcessadas() {
+export default function Employees() {
   // Hooks
   const router = useRouter()
   const { isAuthenticated, permissionsData } = useAuth()
@@ -21,13 +23,10 @@ export default function MaisAcessadas() {
   // States
   const [search, setSearch] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
-  const [evento, setEvento] = useState('')
-  const [dataInicio, setDataInicio] = useState('')
-  const [dataFim, setDataFim] = useState('')
   const [pagina, setPagina] = useState(1)
 
   // Fetch
-  const { data, error } = useFetch([isAuthenticated ? '/admin/events/paginasMaisAcessadas' : null, { busca: searchFilter, evento, dataInicio, dataFim, pagina }])
+  const { data, error } = useFetch([isAuthenticated ? '/admin/usuarios/' : null, { busca: searchFilter, pagina }])
   const loading = !data && !error
 
   function Th({ children }) {
@@ -51,7 +50,7 @@ export default function MaisAcessadas() {
   return (
     <Container size="100%" mb="50px">
       <Stack>
-        <Text>Mais acessadas</Text>
+        <Text>Funcionários</Text>
 
         <Box pos="relative">
           <LoadingOverlay
@@ -62,63 +61,44 @@ export default function MaisAcessadas() {
           />
         </Box>
         <ScrollArea>
-          <Grid>
-            <Grid.Col span={3}>
-              <TextInput
-                placeholder="Buscar por mensagem ou URL"
-                mb="md"
-                leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
-                value={search}
-                onChange={event => setSearch(event.target.value)}
-                onBlur={event => setSearchFilter(event.target.value)}
-              />
-            </Grid.Col>
-            <Grid.Col span={3}>
-              <Select
-                placeholder="Evento"
-                data={[{ value: '', label: 'Todos' }, { value: 'whatsapp', label: 'Whatsapp' }, { value: 'telefone', label: 'Telefone' }]}
-                onChange={option => setEvento(option)}
-              />
-            </Grid.Col>
-            <Grid.Col span={3}>
-              <TextInput
-                placeholder="Data Início"
-                type="date"
-                value={dataInicio}
-                onChange={event => setDataInicio(event.target.value)}
-              />
-            </Grid.Col>
-            <Grid.Col span={3}>
-              <TextInput
-                placeholder="Data Fim"
-                type="date"
-                value={dataFim}
-                onChange={event => setDataFim(event.target.value)}
-              />
-            </Grid.Col>
-          </Grid>
+          <TextInput
+            placeholder="Buscar por nome ou e-mail"
+            mb="md"
+            leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
+            value={search}
+            onChange={event => setSearch(event.target.value)}
+            onBlur={event => setSearchFilter(event.target.value)}
+          />
           <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
             <Table.Tbody>
               <Table.Tr>
-                <Th>Evento</Th>
-                <Th>Mensagem</Th>
-                <Th>Acessos</Th>
+                <Th>Nome</Th>
+                <Th>E-mail</Th>
+                <Th>Ativo</Th>
+                <Th>Data Cadastro</Th>
+                <Th>Ações</Th>
               </Table.Tr>
             </Table.Tbody>
             <Table.Tbody>
               {data?.data?.length > 0 ? data?.data?.map((row) => {
                 return (
                   <Table.Tr key={row.id} className={classes.tr}>
-                    <Table.Td className={classes.td}>{row.evento}</Table.Td>
-                    <Table.Td className={classes.td}>{row.url}</Table.Td>
-                    <Table.Td className={classes.td}>{row.count}</Table.Td>
+                    <Table.Td className={classes.td}>{row.name}</Table.Td>
+                    <Table.Td className={classes.td}>{row.email}</Table.Td>
+                    <Table.Td className={classes.td}><Display.Status status={row.status} /></Table.Td>
+                    <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
+                    <Table.Td className={classes.td}>
+                      <Group gap="xs">
+                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/funcionarios/${row.id}`}>Editar</Button>
+                      </Group>
+                    </Table.Td>
                   </Table.Tr>
                 )
               }) : (
                 <Table.Tr>
                   <Table.Td colSpan={5}>
                     <Text fw={500} ta="center">
-                      Nenhum evento encontrado
+                      Nenhum funcionário encontrado
                     </Text>
                   </Table.Td>
                 </Table.Tr>

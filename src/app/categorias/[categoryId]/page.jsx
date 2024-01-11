@@ -1,32 +1,30 @@
 'use client'
 
-import { Badge, Center, Container, Group, Loader, Stack, Tabs, Text } from '@mantine/core'
+import { Button, Center, Container, Group, Loader, Stack, Tabs } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { IconAt, IconUser } from '@tabler/icons-react'
+import { IconCategory } from '@tabler/icons-react'
 import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
-import { UserForm } from '@/components/forms'
+import { CategoryForm } from '@/components/forms'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 
-import classes from './Usuario.module.css'
-
-export default function Usuario() {
+export default function Category() {
   // Hooks
   const { isAuthenticated } = useAuth()
-  const { usuarioId } = useParams()
+  const { categoryId } = useParams()
   const router = useRouter()
 
   // States
-  const [tab, setTab] = useState('profile')
+  const [tab, setTab] = useState('category')
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/usuarios/${usuarioId}` : null])
+  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/usuarios/${categoryId}` : null])
 
   // Constants
   const tabs = [
-    { id: 'profile', label: 'Perfil', icon: <IconUser style={{ height: 12, width: 12 }} /> },
+    { id: 'category', label: 'Categoria', icon: <IconCategory style={{ height: 12, width: 12 }} /> },
   ]
 
   // Effects
@@ -40,27 +38,13 @@ export default function Usuario() {
   }
 
   if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
-    
+
   return (
     <Container size="100%" mb="50px">
       <Stack>
-        <Group wrap="nowrap">
-          <div>
-            {data?.status === '1' ? (
-              <Badge size="sm" color="green">Ativo</Badge>
-            ) : (
-              <Badge size="sm" color="red">Inativo</Badge>
-            )}
-            <Text fz="lg" fw={500} className={classes.profileName}>
-              {data?.id} - {data?.name}
-            </Text>
-            <Group wrap="nowrap" gap={10} mt={3}>
-              <IconAt stroke={1.5} size="1rem" className={classes.profileIcon} />
-              <Text fz="xs" c="dimmed">{data?.email}</Text>
-            </Group>
-          </div>
+        <Group justify="space-between">
+          <Button component="a" href="/categorias">Voltar</Button>
         </Group>
-
         <Tabs value={tab} onChange={setTab}>
           <Tabs.List>
             {tabs.map(item => (
@@ -69,10 +53,10 @@ export default function Usuario() {
               </Tabs.Tab>
             ))}
           </Tabs.List>
-          <Tabs.Panel value="profile">
-            {data && tab === 'profile' && (
+          <Tabs.Panel value="category">
+            {data && tab === 'category' && (
               <Container size="100%" mb="xl" mt="xs">
-                <UserForm.Basic usuarioData={data} mutate={mutate} />
+                <CategoryForm.Basic categoryData={data} mutate={mutate} />
               </Container>
             )}
           </Tabs.Panel>

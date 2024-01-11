@@ -1,4 +1,4 @@
-const STORAGE_KEY = '@gatacompleta-cms/'
+const STORAGE_KEY = '@agenda-online-painel/'
 
 export const getStorage = (name, isString = false) => {
   if (typeof localStorage !== 'undefined') {
