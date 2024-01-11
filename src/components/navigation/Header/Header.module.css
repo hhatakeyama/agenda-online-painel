@@ -1,0 +1,35 @@
+.header {
+  background-color: #2a3564;
+  height: 80px;
+  left: 0px;
+  margin-bottom: 15px;
+  padding-top: var(--mantine-spacing-sm);
+  position: fixed;
+  right:0;
+  top: 0;
+  z-index: 1000;
+}
+
+.mainSection {
+  padding-bottom: var(--mantine-spacing-sm);
+}
+
+.user {
+  background-color: #333333;
+  color: white;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  transition: background-color 100ms ease;
+
+  &:hover {
+    background-color: #666666;
+  }
+
+  @media (max-width: $mantine-breakpoint-xs) {
+    display: none;
+  }
+}
+
+.userActive {
+  background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-8));
+}

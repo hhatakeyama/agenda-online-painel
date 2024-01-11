@@ -1,0 +1,46 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": ["next", "plugin:react/recommended"],
+  "plugins": ["react", "simple-import-sort"],
+  "rules": {
+    "semi": "off",
+    "import/no-anonymous-default-export": "off",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
+    "indent": [
+      "error",
+      2,
+      {
+        "SwitchCase": 1,
+        "offsetTernaryExpressions": true,
+        "ignoredNodes": ["TemplateLiteral"]
+      }
+    ],
+    "jsx-quotes": ["error", "prefer-double"],
+    "multiline-ternary": "off",
+    "no-console": "warn",
+    "no-unused-vars": "error",
+    "no-use-before-define": "off",
+    "react/prop-types": "off",
+    "react/react-in-jsx-scope": "off",
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "space-before-function-paren": [
+      "error",
+      { "anonymous": "always", "named": "never", "asyncArrow": "always" }
+    ]
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx"]
+      }
+    },
+    "react": {
+      "version": "detect" // Automatically detect the react version
+    }
+  }
+}
