@@ -6,7 +6,7 @@ import { IconBuilding } from '@tabler/icons-react'
 import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
-import { OrganizationForm } from '@/components/forms'
+import { FormOrganization } from '@/components/forms'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 
@@ -56,7 +56,7 @@ export default function Organization() {
           <Tabs.Panel value="organization">
             {data && tab === 'organization' && (
               <Container size="100%" mb="xl" mt="xs">
-                <OrganizationForm.Basic organizationData={data} mutate={mutate} />
+                <FormOrganization.Basic organizationData={data} mutate={mutate} />
               </Container>
             )}
           </Tabs.Panel>

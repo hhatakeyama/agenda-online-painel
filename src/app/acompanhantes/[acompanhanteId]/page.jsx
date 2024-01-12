@@ -6,7 +6,7 @@ import { IconAt, IconCalendar, IconPhone, IconPhoneCall, IconPhoto, IconUser } f
 import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
-import { AcompanhanteForm } from '@/components/forms'
+import { FormAcompanhante } from '@/components/forms'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { dateToHuman } from '@/utils'
@@ -123,7 +123,7 @@ export default function Acompanhantes() {
           <Tabs.Panel value="profile">
             {data && tab === 'profile' && (
               <Container size="100%" mb="xl" mt="xs">
-                <AcompanhanteForm.Basic acompanhanteData={data} mutate={mutate} />
+                <FormAcompanhante.Basic acompanhanteData={data} mutate={mutate} />
               </Container>
             )}
           </Tabs.Panel>

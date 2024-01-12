@@ -2,7 +2,6 @@ import { Alert, Button, Grid, Group, LoadingOverlay, Select, Stack, useMantineTh
 import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import Image from 'next/image'
 import React, { useState } from 'react'
 
 import { useAuth } from '@/providers/AuthProvider'
@@ -11,11 +10,23 @@ import errorHandler from '@/utils/errorHandler'
 
 import * as Fields from './Fields'
 
-export default function Basic({ usuarioData, mutate }) {
+export default function Basic({ userData, mutate }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
-  const { isValidating } = useAuth()
+  const { isValidating, permissionsData } = useAuth()
+
+  // Constants
+  const { permissions } = permissionsData || {}
+  const superAccess = !!permissions?.find(perm => perm === 's') || false
+  const adminAccess = !!permissions?.find(perm => perm === 'a') || false
+  const gerenteAccess = !!permissions?.find(perm => perm === 'g') || false
+
+  const tipos = [
+    { value: 's', label: 'Superadmin', visible: superAccess },
+    { value: 'a', label: 'Administrador', visible: superAccess || adminAccess },
+    { value: 'g', label: 'Gerente', visible: superAccess || adminAccess || gerenteAccess },
+  ]
 
   // States
   const [error, setError] = useState(null)
@@ -23,12 +34,12 @@ export default function Basic({ usuarioData, mutate }) {
 
   // Form
   const initialValues = {
-    name: usuarioData?.name || '',
-    email: usuarioData?.email || '',
+    name: userData?.name || '',
+    email: userData?.email || '',
     password: '',
     confirmPassword: '',
-    type: 'f',
-    status: usuarioData?.status || '0',
+    type: userData?.type || '',
+    status: userData?.status || '1',
   }
 
   const schema = Yup.object().shape({
@@ -36,6 +47,7 @@ export default function Basic({ usuarioData, mutate }) {
     email: Yup.string().email().required(),
     password: Yup.string().nullable(),
     confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Senhas diferentes'),
+    type: Yup.string().required("Tipo obrigatório"),
     status: Yup.string().nullable(),
   })
 
@@ -53,7 +65,7 @@ export default function Basic({ usuarioData, mutate }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        .patch(`/admin/usuarios/${usuarioData?.id}/`, {
+        .patch(`/admin/usuarios/${userData?.id}/`, {
           ...newValues, ...(newValues ? { password_confirmation: newValues.confirmPassword } : {})
         }) // Verificar usuário logado no painel
         .then(() => {
@@ -82,10 +94,7 @@ export default function Basic({ usuarioData, mutate }) {
     <form onSubmit={form.onSubmit(handleSubmit)} style={{ position: 'relative' }}>
       <LoadingOverlay visible={isValidating} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       <Grid>
-        <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 3, xl: 2 }}>
-          <Image alt="Foto destaque" src={"https://admin.gatacompleta.com"} width={200} height={200} radius="md" />
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, md: 8, lg: 6 }}>
+        <Grid.Col span={userData ? { base: 12, lg: 6 } : { base: 12 }}>
           <Stack>
             <Grid>
               <Grid.Col span={{ base: 12, sm: 6 }}>
@@ -99,6 +108,16 @@ export default function Basic({ usuarioData, mutate }) {
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.ConfirmPasswordField inputProps={{ ...form.getInputProps('confirmPassword'), disabled: isSubmitting }} />
+              </Grid.Col>
+              <Grid.Col span={6}>
+                <Select
+                  required
+                  label="Tipo"
+                  placeholder="Tipo"
+                  data={tipos}
+                  disabled={isSubmitting}
+                  {...form.getInputProps('type')}
+                />
               </Grid.Col>
               <Grid.Col span={6}>
                 <Select

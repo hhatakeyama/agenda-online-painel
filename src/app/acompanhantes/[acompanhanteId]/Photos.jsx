@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import PhotoCard from '@/app/acompanhantes/[acompanhanteId]/PhotoCard'
-import { AcompanhanteForm } from '@/components/forms'
+import { FormAcompanhante } from '@/components/forms'
 import { useAuth } from '@/providers/AuthProvider'
 import { api } from '@/utils'
 
@@ -71,7 +71,7 @@ export default function Photos({ acompanhanteData, mutate }) {
   return (
     <Stack align="center">
       <Box maw={600} mt="sm">
-        {acompanhanteData && <AcompanhanteForm.Photos onFileUpload={handleFileUpload} />}
+        {acompanhanteData && <FormAcompanhante.Photos onFileUpload={handleFileUpload} />}
       </Box>
       <Grid>
         {photos?.map((foto) => (

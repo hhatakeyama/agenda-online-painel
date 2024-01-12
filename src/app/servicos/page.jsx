@@ -6,14 +6,14 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import * as Display from '@/components/display'
-import { FormEmployee } from '@/components/forms'
+import { FormService } from '@/components/forms'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { dateToHuman } from '@/utils'
 
-import classes from './Employees.module.css'
+import classes from './Services.module.css'
 
-export default function Employees() {
+export default function Services() {
   // Hooks
   const router = useRouter()
   const { isAuthenticated, permissionsData } = useAuth()
@@ -53,11 +53,10 @@ export default function Employees() {
     <Container size="100%" mb="50px">
       <Stack>
         <Group justify="space-between">
-          <Text>Funcionários</Text>
+          <Text>Serviços</Text>
 
-          <Button onClick={() => setRegister(true)}>Adicionar Funcionário</Button>
+          <Button onClick={() => setRegister(true)}>Adicionar Serviço</Button>
         </Group>
-
 
         <Box pos="relative">
           <LoadingOverlay
@@ -80,7 +79,6 @@ export default function Employees() {
             <Table.Tbody>
               <Table.Tr>
                 <Th>Nome</Th>
-                <Th>E-mail</Th>
                 <Th>Ativo</Th>
                 <Th>Data Cadastro</Th>
                 <Th>Ações</Th>
@@ -91,21 +89,20 @@ export default function Employees() {
                 return (
                   <Table.Tr key={row.id} className={classes.tr}>
                     <Table.Td className={classes.td}>{row.name}</Table.Td>
-                    <Table.Td className={classes.td}>{row.email}</Table.Td>
                     <Table.Td className={classes.td}><Display.Status status={row.status} /></Table.Td>
                     <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
                     <Table.Td className={classes.td}>
                       <Group gap="xs">
-                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/funcionarios/${row.id}`}>Editar</Button>
+                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/servicos/${row.id}`}>Editar</Button>
                       </Group>
                     </Table.Td>
                   </Table.Tr>
                 )
               }) : (
                 <Table.Tr>
-                  <Table.Td colSpan={5}>
+                  <Table.Td colSpan={4}>
                     <Text fw={500} ta="center">
-                      Nenhum funcionário encontrado
+                      Nenhum serviço encontrado
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -113,7 +110,7 @@ export default function Employees() {
             </Table.Tbody>
             <Table.Tfoot>
               <Table.Tr>
-                <Table.Td colSpan={5}>
+                <Table.Td colSpan={4}>
                   <Center>
                     <Pagination total={data?.last_page} defaultValue={pagina} onChange={setPagina} />
                   </Center>
@@ -124,8 +121,8 @@ export default function Employees() {
         </ScrollArea>
       </Stack>
       
-      <Modal opened={register} onClose={() => setRegister(false)} title="Cadastrar funcionário" centered>
-        <FormEmployee.Basic mutate={mutate} />
+      <Modal opened={register} onClose={() => setRegister(false)} title="Cadastrar serviço" centered>
+        <FormService.Basic mutate={mutate} />
       </Modal>
     </Container>
   )

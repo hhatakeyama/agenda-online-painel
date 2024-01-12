@@ -1,4 +1,4 @@
-import { Alert, Button, Grid, Group, LoadingOverlay, Select, Stack, TextInput, useMantineTheme } from '@mantine/core'
+import { Alert, Button, Grid, Group, LoadingOverlay, Select, Stack, Textarea, TextInput, useMantineTheme } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
@@ -8,7 +8,7 @@ import { useAuth } from '@/providers/AuthProvider'
 import { api, Yup } from '@/utils'
 import errorHandler from '@/utils/errorHandler'
 
-export default function Basic({ categoryData, mutate }) {
+export default function Basic({ serviceData, mutate }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
@@ -20,12 +20,20 @@ export default function Basic({ categoryData, mutate }) {
 
   // Form
   const initialValues = {
-    name: categoryData?.name || '',
-    status: categoryData?.status || '0',
+    name: serviceData?.name || '',
+    description: serviceData?.description || '',
+    serviceCategoryId: serviceData?.serviceCategoryId || null,
+    price: serviceData?.price || 0.00,
+    duration: serviceData?.duration || '00:00',
+    status: serviceData?.status || '1',
   }
 
   const schema = Yup.object().shape({
     name: Yup.string().required(),
+    description: Yup.string(),
+    serviceCategoryId: Yup.object().required(),
+    price: Yup.number().required(),
+    duration: Yup.string().required(),
     status: Yup.string().nullable(),
   })
 
@@ -43,15 +51,11 @@ export default function Basic({ categoryData, mutate }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        .patch(`/admin/usuarios/${categoryData?.id}/`, { ...newValues })
+        .patch(`/admin/usuarios/${serviceData?.id}/`, { ...newValues }) // Verificar usuário logado no painel
         .then(() => {
           form.reset()
           setTimeout(() => mutate(), 2000)
-          notifications.show({
-            title: 'Sucesso',
-            message: 'Dados atualizados com sucesso!',
-            color: 'green'
-          })
+          notifications.show({ title: 'Sucesso', message: 'Dados atualizados com sucesso!', color: 'green' })
         })
         .catch(error => {
           notifications.show({
@@ -70,16 +74,28 @@ export default function Basic({ categoryData, mutate }) {
     <form onSubmit={form.onSubmit(handleSubmit)} style={{ position: 'relative' }}>
       <LoadingOverlay visible={isValidating} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       <Grid>
-        <Grid.Col span={{ base: 12, lg: 6 }}>
+        <Grid.Col span={serviceData ? { base: 12, lg: 6 } : { base: 12 }}>
           <Stack>
             <Grid>
+              <Grid.Col span={{ base: 12 }}>
+                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Serviço" placeholder="Serviço" type="text" />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12 }}>
+                <Textarea {...form.getInputProps('description')} disabled={isSubmitting} label="Descrição" placeholder="Descrição" minRows={5} />
+              </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Nome" placeholder="Nome" type="text" />
+                <TextInput {...form.getInputProps('serviceCategoryId')} disabled={isSubmitting} label="Categoria" placeholder="Categoria" type="text" />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <TextInput {...form.getInputProps('price')} disabled={isSubmitting} label="Preço" placeholder="Preço" type="tel" />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <TextInput {...form.getInputProps('duration')} disabled={isSubmitting} label="Duração" placeholder="Duração" type="time" />
               </Grid.Col>
               <Grid.Col span={6}>
                 <Select
-                  label="Conta ativa?"
-                  placeholder="Conta ativa?"
+                  label="Ativo?"
+                  placeholder="Ativo?"
                   data={[{ value: '1', label: 'Sim' }, { value: '0', label: 'Não' }]}
                   disabled={isSubmitting}
                   {...form.getInputProps('status')}

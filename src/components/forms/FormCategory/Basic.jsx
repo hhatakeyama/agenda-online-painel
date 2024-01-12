@@ -8,9 +8,7 @@ import { useAuth } from '@/providers/AuthProvider'
 import { api, Yup } from '@/utils'
 import errorHandler from '@/utils/errorHandler'
 
-import * as Fields from './Fields'
-
-export default function Basic({ organizationData, mutate }) {
+export default function Basic({ categoryData, mutate }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
@@ -22,19 +20,12 @@ export default function Basic({ organizationData, mutate }) {
 
   // Form
   const initialValues = {
-    name: organizationData?.name || '',
-    email: organizationData?.email || '',
-    password: '',
-    confirmPassword: '',
-    type: 'f',
-    status: organizationData?.status || '0',
+    name: categoryData?.name || '',
+    status: categoryData?.status || '1',
   }
 
   const schema = Yup.object().shape({
     name: Yup.string().required(),
-    email: Yup.string().email().required(),
-    password: Yup.string().nullable(),
-    confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Senhas diferentes'),
     status: Yup.string().nullable(),
   })
 
@@ -52,9 +43,7 @@ export default function Basic({ organizationData, mutate }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        .patch(`/admin/usuarios/${organizationData?.id}/`, {
-          ...newValues, ...(newValues ? { password_confirmation: newValues.confirmPassword } : {})
-        }) // Verificar usuário logado no painel
+        .patch(`/admin/usuarios/${categoryData?.id}/`, { ...newValues })
         .then(() => {
           form.reset()
           setTimeout(() => mutate(), 2000)
@@ -81,22 +70,11 @@ export default function Basic({ organizationData, mutate }) {
     <form onSubmit={form.onSubmit(handleSubmit)} style={{ position: 'relative' }}>
       <LoadingOverlay visible={isValidating} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       <Grid>
-        <Grid.Col span={{ base: 12, lg: 6 }}>
+        <Grid.Col span={categoryData ? { base: 12, lg: 6 } : { base: 12 }}>
           <Stack>
             <Grid>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Razão Social" placeholder="Razão Social" type="text" />
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Nome Fantasia" placeholder="Nome Fantasia" type="text" />
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.TaxDocumentField
-                  inputProps={{
-                    ...form.getInputProps('name'),
-                    disabled: isSubmitting,
-                  }}
-                />
+                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Nome" placeholder="Nome" type="text" />
               </Grid.Col>
               <Grid.Col span={6}>
                 <Select

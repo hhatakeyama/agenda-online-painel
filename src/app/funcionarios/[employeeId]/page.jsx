@@ -7,7 +7,7 @@ import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import * as Display from '@/components/display'
-import { EmployeeForm } from '@/components/forms'
+import { FormEmployee } from '@/components/forms'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 
@@ -69,7 +69,7 @@ export default function Employee() {
           <Tabs.Panel value="profile">
             {data && tab === 'profile' && (
               <Container size="100%" mb="xl" mt="xs">
-                <EmployeeForm.Basic usuarioData={data} mutate={mutate} />
+                <FormEmployee.Basic employeeData={data} mutate={mutate} />
               </Container>
             )}
           </Tabs.Panel>

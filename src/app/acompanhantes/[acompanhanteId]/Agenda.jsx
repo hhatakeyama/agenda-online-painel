@@ -4,7 +4,7 @@ import { Box, Button, Card, Center, Grid, Loader, Modal, Stack } from '@mantine/
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
-import { AcompanhanteForm } from '@/components/forms'
+import { FormAcompanhante } from '@/components/forms'
 import { useAuth } from '@/providers/AuthProvider'
 
 export default function Agenda({ acompanhanteData, mutate }) {
@@ -33,7 +33,7 @@ export default function Agenda({ acompanhanteData, mutate }) {
             {acompanhanteData?.periodos?.map(periodo => (
               <Grid.Col key={periodo.id} span={{ base: 12, lg: 6 }}>
                 <Card style={{ width: '100%' }}>
-                  <AcompanhanteForm.Agenda acompanhanteData={acompanhanteData} agendaData={periodo} onSuccess={() => mutate()} />
+                  <FormAcompanhante.Agenda acompanhanteData={acompanhanteData} agendaData={periodo} onSuccess={() => mutate()} />
                 </Card>
               </Grid.Col>
             ))}
@@ -41,7 +41,7 @@ export default function Agenda({ acompanhanteData, mutate }) {
         )}
       </Stack>
       <Modal centered opened={opened} onClose={() => setOpened(false)} title="Nova agenda">
-        <AcompanhanteForm.Agenda acompanhanteData={acompanhanteData} onSuccess={() => {
+        <FormAcompanhante.Agenda acompanhanteData={acompanhanteData} onSuccess={() => {
           mutate()
           setOpened(false)
         }} />

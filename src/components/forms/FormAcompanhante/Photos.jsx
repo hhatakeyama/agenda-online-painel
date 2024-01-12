@@ -3,7 +3,7 @@ import { Dropzone } from '@mantine/dropzone'
 import { IconCloudUpload, IconDownload, IconX } from '@tabler/icons-react'
 import React, { useRef } from 'react'
 
-import classes from './AcompanhanteForm.module.css'
+import classes from './FormAcompanhante.module.css'
 
 export default function Photos({ onFileUpload }) {
   // Hooks

@@ -1,11 +1,12 @@
 'use client'
 
-import { Box, Button, Center, Container, Group, Loader, LoadingOverlay, Pagination, rem, ScrollArea, Stack, Table, Text, TextInput } from '@mantine/core'
+import { Box, Button, Center, Container, Group, Loader, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Stack, Table, Text, TextInput } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import * as Display from '@/components/display'
+import { FormOrganization } from '@/components/forms'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { dateToHuman } from '@/utils'
@@ -24,9 +25,10 @@ export default function Organizations() {
   const [search, setSearch] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
   const [pagina, setPagina] = useState(1)
+  const [register, setRegister] = useState(false)
 
   // Fetch
-  const { data, error } = useFetch([isAuthenticated ? '/admin/usuarios/' : null, { busca: searchFilter, pagina }])
+  const { data, error, mutate } = useFetch([isAuthenticated ? '/admin/usuarios/' : null, { busca: searchFilter, pagina }])
   const loading = !data && !error
 
   function Th({ children }) {
@@ -50,7 +52,11 @@ export default function Organizations() {
   return (
     <Container size="100%" mb="50px">
       <Stack>
-        <Text>Empresas</Text>
+        <Group justify="space-between">
+          <Text>Empresas</Text>
+
+          <Button onClick={() => setRegister(true)}>Adicionar Empresa</Button>
+        </Group>
 
         <Box pos="relative">
           <LoadingOverlay
@@ -118,6 +124,10 @@ export default function Organizations() {
           </Table>
         </ScrollArea>
       </Stack>
+      
+      <Modal opened={register} onClose={() => setRegister(false)} title="Cadastrar empresa" centered>
+        <FormOrganization.Basic mutate={mutate} />
+      </Modal>
     </Container>
   )
 }
