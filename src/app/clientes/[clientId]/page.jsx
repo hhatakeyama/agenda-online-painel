@@ -7,23 +7,23 @@ import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import * as Display from '@/components/display'
-import { FormUser } from '@/components/forms'
+import { FormClient } from '@/components/forms'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 
-import classes from './User.module.css'
+import classes from './Client.module.css'
 
-export default function User() {
+export default function Client() {
   // Hooks
   const { isAuthenticated } = useAuth()
-  const { userId } = useParams()
+  const { clientId } = useParams()
   const router = useRouter()
 
   // States
   const [tab, setTab] = useState('profile')
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/usuarios/${userId}` : null])
+  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/usuarios/${clientId}` : null])
 
   // Constants
   const tabs = [
@@ -69,7 +69,7 @@ export default function User() {
           <Tabs.Panel value="profile">
             {data && tab === 'profile' && (
               <Container size="100%" mb="xl" mt="xs">
-                <FormUser.Basic userData={data} mutate={mutate} />
+                <FormClient.Basic clientData={data} mutate={mutate} />
               </Container>
             )}
           </Tabs.Panel>

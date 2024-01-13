@@ -6,7 +6,7 @@
   padding: var(--mantine-spacing-md);
   position: fixed;
   width: rem(300px);
-  z-index: 1001;
+  z-index: 51;
 }
 
 .navbarMain {

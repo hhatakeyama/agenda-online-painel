@@ -8,11 +8,18 @@ import { useAuth } from '@/providers/AuthProvider'
 import { api, Yup } from '@/utils'
 import errorHandler from '@/utils/errorHandler'
 
+import * as Fields from './Fields'
+
 export default function Basic({ categoryData, mutate }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
-  const { isValidating } = useAuth()
+  const { isValidating, permissionsData } = useAuth()
+
+  // Constants
+  const editing = !!categoryData
+  const { permissions } = permissionsData || {}
+  const adminAccess = !!permissions?.find(perm => perm === 's' || perm === 'a') || false
 
   // States
   const [error, setError] = useState(null)
@@ -20,11 +27,13 @@ export default function Basic({ categoryData, mutate }) {
 
   // Form
   const initialValues = {
+    organziationId: categoryData?.organziationId || null,
     name: categoryData?.name || '',
     status: categoryData?.status || '1',
   }
 
   const schema = Yup.object().shape({
+    organizationId: Yup.number().required(),
     name: Yup.string().required(),
     status: Yup.string().nullable(),
   })
@@ -36,6 +45,9 @@ export default function Basic({ categoryData, mutate }) {
     validateInputOnBlur: true,
     validateInputOnChange: true
   })
+
+  // Fetch
+  const optionsOrganizations = [{ label: 'Empresa 1', value: '1' }]
 
   // Actions
   const handleSubmit = async (newValues) => {
@@ -70,11 +82,22 @@ export default function Basic({ categoryData, mutate }) {
     <form onSubmit={form.onSubmit(handleSubmit)} style={{ position: 'relative' }}>
       <LoadingOverlay visible={isValidating} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       <Grid>
-        <Grid.Col span={categoryData ? { base: 12, lg: 6 } : { base: 12 }}>
+        <Grid.Col span={editing ? { base: 12, lg: 6 } : { base: 12 }}>
           <Stack>
             <Grid>
+              {adminAccess && <Grid.Col span={{ base: 12 }}>
+                <Fields.OrganizationField
+                  inputProps={{
+                    ...form.getInputProps('organizationId'),
+                    data: optionsOrganizations,
+                    disabled: isSubmitting,
+                    searchable: true,
+                    required: true
+                  }}
+                />
+              </Grid.Col>}
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Nome" placeholder="Nome" type="text" />
+                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Nome" placeholder="Nome" type="text" required />
               </Grid.Col>
               <Grid.Col span={6}>
                 <Select

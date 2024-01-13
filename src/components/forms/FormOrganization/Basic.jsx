@@ -16,6 +16,9 @@ export default function Basic({ organizationData, mutate }) {
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
   const { isValidating } = useAuth()
 
+  // Constants
+  const editing = !!organizationData
+
   // States
   const [error, setError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -81,14 +84,14 @@ export default function Basic({ organizationData, mutate }) {
     <form onSubmit={form.onSubmit(handleSubmit)} style={{ position: 'relative' }}>
       <LoadingOverlay visible={isValidating} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       <Grid>
-        <Grid.Col span={organizationData ? { base: 12, lg: 6 } : { base: 12 }}>
+        <Grid.Col span={editing ? { base: 12, lg: 6 } : { base: 12 }}>
           <Stack>
             <Grid>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Razão Social" placeholder="Razão Social" type="text" />
+                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Razão Social" placeholder="Razão Social" type="text" required />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Nome Fantasia" placeholder="Nome Fantasia" type="text" />
+                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Nome Fantasia" placeholder="Nome Fantasia" type="text" required />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.TaxDocumentField

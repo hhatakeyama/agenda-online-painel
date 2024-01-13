@@ -6,14 +6,14 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import * as Display from '@/components/display'
-import { FormUser } from '@/components/forms'
+import { FormClient } from '@/components/forms'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { dateToHuman } from '@/utils'
 
-import classes from './Users.module.css'
+import classes from './Clients.module.css'
 
-export default function Users() {
+export default function Clients() {
   // Hooks
   const router = useRouter()
   const { isAuthenticated, permissionsData } = useAuth()
@@ -53,9 +53,9 @@ export default function Users() {
     <Container size="100%" mb="50px">
       <Stack>
         <Group justify="space-between">
-          <Text>Usuários</Text>
+          <Text>Clientes</Text>
 
-          <Button onClick={() => setRegister(true)}>Adicionar Usuário</Button>
+          <Button onClick={() => setRegister(true)}>Adicionar Cliente</Button>
         </Group>
 
         <Box pos="relative">
@@ -95,7 +95,7 @@ export default function Users() {
                     <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
                     <Table.Td className={classes.td}>
                       <Group gap="xs">
-                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/usuarios/${row.id}`}>Editar</Button>
+                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/clientes/${row.id}`}>Editar</Button>
                       </Group>
                     </Table.Td>
                   </Table.Tr>
@@ -104,7 +104,7 @@ export default function Users() {
                 <Table.Tr>
                   <Table.Td colSpan={5}>
                     <Text fw={500} ta="center">
-                      Nenhum usuário encontrado
+                      Nenhum cliente encontrado
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -123,8 +123,8 @@ export default function Users() {
         </ScrollArea>
       </Stack>
       
-      <Modal opened={register} onClose={() => setRegister(false)} title="Cadastrar serviço" centered>
-        <FormUser.Basic mutate={mutate} />
+      <Modal opened={register} onClose={() => setRegister(false)} title="Cadastrar cliente" centered>
+        <FormClient.Basic mutate={mutate} />
       </Modal>
     </Container>
   )

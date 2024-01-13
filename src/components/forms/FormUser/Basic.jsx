@@ -27,6 +27,7 @@ export default function Basic({ userData, mutate }) {
     { value: 'a', label: 'Administrador', visible: superAccess || adminAccess },
     { value: 'g', label: 'Gerente', visible: superAccess || adminAccess || gerenteAccess },
   ]
+  const editing = !!userData
 
   // States
   const [error, setError] = useState(null)
@@ -34,6 +35,7 @@ export default function Basic({ userData, mutate }) {
 
   // Form
   const initialValues = {
+    organizationId: userData?.organizationId || null,
     name: userData?.name || '',
     email: userData?.email || '',
     password: '',
@@ -43,6 +45,7 @@ export default function Basic({ userData, mutate }) {
   }
 
   const schema = Yup.object().shape({
+    organizationId: Yup.number().required(),
     name: Yup.string().required(),
     email: Yup.string().email().required(),
     password: Yup.string().nullable(),
@@ -58,6 +61,9 @@ export default function Basic({ userData, mutate }) {
     validateInputOnBlur: true,
     validateInputOnChange: true
   })
+
+  // Fetch
+  const optionsOrganizations = [{ label: 'Empresa 1', value: '1' }]
 
   // Actions
   const handleSubmit = async (newValues) => {
@@ -94,9 +100,20 @@ export default function Basic({ userData, mutate }) {
     <form onSubmit={form.onSubmit(handleSubmit)} style={{ position: 'relative' }}>
       <LoadingOverlay visible={isValidating} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       <Grid>
-        <Grid.Col span={userData ? { base: 12, lg: 6 } : { base: 12 }}>
+        <Grid.Col span={editing ? { base: 12, lg: 6 } : { base: 12 }}>
           <Stack>
             <Grid>
+              {(superAccess || adminAccess) && <Grid.Col span={{ base: 12 }}>
+                <Fields.OrganizationField
+                  inputProps={{
+                    ...form.getInputProps('organizationId'),
+                    data: optionsOrganizations,
+                    disabled: isSubmitting,
+                    searchable: true,
+                    required: true
+                  }}
+                />
+              </Grid.Col>}
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.NameField inputProps={{ ...form.getInputProps('name'), required: true, disabled: isSubmitting }} />
               </Grid.Col>

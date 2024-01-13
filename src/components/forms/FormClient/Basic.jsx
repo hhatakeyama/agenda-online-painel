@@ -3,7 +3,6 @@ import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
 import { useAuth } from '@/providers/AuthProvider'
@@ -12,15 +11,14 @@ import errorHandler from '@/utils/errorHandler'
 
 import * as Fields from './Fields'
 
-export default function Basic({ employeeData, mutate }) {
+export default function Basic({ clientData, mutate }) {
   // Hooks
-  const router = useRouter()
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
   const { isValidating, permissionsData } = useAuth()
 
   // Constants
-  const editing = !!employeeData
+  const editing = !!clientData
   const { permissions } = permissionsData || {}
   const adminAccess = !!permissions?.find(perm => perm === 's' || perm === 'a') || false
 
@@ -30,21 +28,18 @@ export default function Basic({ employeeData, mutate }) {
 
   // Form
   const initialValues = {
-    organizationId: employeeData?.organizationId || null,
-    name: employeeData?.name || '',
-    email: employeeData?.email || '',
-    password: '',
-    confirmPassword: '',
-    type: 'f',
-    status: employeeData?.status || '1',
+    organizationId: clientData?.organizationId || null,
+    name: clientData?.name || '',
+    email: clientData?.email || '',
+    picture: clientData?.picture || '',
+    status: clientData?.status || '1',
   }
 
   const schema = Yup.object().shape({
     organizationId: Yup.number().required(),
     name: Yup.string().required(),
     email: Yup.string().email().required(),
-    password: Yup.string().nullable(),
-    confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Senhas diferentes'),
+    picture: Yup.string().required(),
     status: Yup.string().nullable(),
   })
 
@@ -65,13 +60,12 @@ export default function Basic({ employeeData, mutate }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        .patch(`/admin/usuarios/${employeeData?.id}/`, {
+        .patch(`/admin/usuarios/${clientData?.id}/`, {
           ...newValues, ...(newValues ? { password_confirmation: newValues.confirmPassword } : {})
         }) // Verificar usuário logado no painel
-        .then(response => {
+        .then(() => {
           form.reset()
           setTimeout(() => mutate(), 2000)
-          router.push(`/funcionarios/${response.data.id}`)
           notifications.show({
             title: 'Sucesso',
             message: 'Dados atualizados com sucesso!',
@@ -98,7 +92,7 @@ export default function Basic({ employeeData, mutate }) {
         <Grid.Col span={editing ? { base: 12, sm: 6, md: 4, lg: 3, xl: 2 } : { base: 12 }} hidden={!editing}>
           <Image alt="Foto destaque" src={"https://admin.gatacompleta.com"} width={200} height={200} radius="md" />
         </Grid.Col>
-        <Grid.Col span={editing ? { base: 12, md: 8, lg: 6 } : { base: 12 }}>
+        <Grid.Col span={editing ? { base: 12, lg: 6 } : { base: 12 }}>
           <Stack>
             <Grid>
               {adminAccess && <Grid.Col span={{ base: 12 }}>
@@ -117,12 +111,6 @@ export default function Basic({ employeeData, mutate }) {
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.EmailField inputProps={{ ...form.getInputProps('email'), required: true, disabled: isSubmitting }} />
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.PasswordField inputProps={{ ...form.getInputProps('password'), disabled: isSubmitting }} />
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.ConfirmPasswordField inputProps={{ ...form.getInputProps('confirmPassword'), disabled: isSubmitting }} />
               </Grid.Col>
               <Grid.Col span={6}>
                 <Select
