@@ -66,15 +66,15 @@ export default function Clients() {
             loaderProps={{ color: 'pink', type: 'bars' }}
           />
         </Box>
-        <ScrollArea>
-          <TextInput
-            placeholder="Buscar por nome ou e-mail"
-            mb="md"
-            leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
-            value={search}
-            onChange={event => setSearch(event.target.value)}
-            onBlur={event => setSearchFilter(event.target.value)}
-          />
+        <TextInput
+          placeholder="Buscar por nome ou e-mail"
+          mb="md"
+          leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
+          value={search}
+          onChange={event => setSearch(event.target.value)}
+          onBlur={event => setSearchFilter(event.target.value)}
+        />
+        <ScrollArea h={data?.data?.length > 15 ? "55vh" : "auto"} offsetScrollbars>
           <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
             <Table.Tbody>
               <Table.Tr>
@@ -110,17 +110,11 @@ export default function Clients() {
                 </Table.Tr>
               )}
             </Table.Tbody>
-            <Table.Tfoot>
-              <Table.Tr>
-                <Table.Td colSpan={5}>
-                  <Center>
-                    <Pagination total={data?.last_page} defaultValue={pagina} onChange={setPagina} />
-                  </Center>
-                </Table.Td>
-              </Table.Tr>
-            </Table.Tfoot>
           </Table>
         </ScrollArea>
+        <Center>
+          <Pagination total={data?.last_page} defaultValue={pagina} onChange={setPagina} />
+        </Center>
       </Stack>
       
       <Modal opened={register} onClose={() => setRegister(false)} title="Cadastrar cliente" centered>

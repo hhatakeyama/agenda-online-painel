@@ -6,14 +6,14 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import * as Display from '@/components/display'
-import { FormEmployee } from '@/components/forms'
+import { FormSchedule } from '@/components/forms'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { dateToHuman } from '@/utils'
 
-import classes from './Employees.module.css'
+import classes from './Agendamentos.module.css'
 
-export default function Employees() {
+export default function Agendamentos() {
   // Hooks
   const router = useRouter()
   const { isAuthenticated, permissionsData } = useAuth()
@@ -53,11 +53,10 @@ export default function Employees() {
     <Container size="100%" mb="50px">
       <Stack>
         <Group justify="space-between">
-          <Text>Funcionários</Text>
+          <Text>Agendamentos</Text>
 
-          <Button onClick={() => setRegister(true)}>Adicionar Funcionário</Button>
+          <Button onClick={() => setRegister(true)}>Adicionar Agendamento</Button>
         </Group>
-
 
         <Box pos="relative">
           <LoadingOverlay
@@ -68,7 +67,7 @@ export default function Employees() {
           />
         </Box>
         <TextInput
-          placeholder="Buscar por nome ou e-mail"
+          placeholder="Buscar por cliente"
           mb="md"
           leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
           value={search}
@@ -79,9 +78,10 @@ export default function Employees() {
           <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
             <Table.Tbody>
               <Table.Tr>
-                <Th>Nome</Th>
-                <Th>E-mail</Th>
-                <Th>Ativo</Th>
+                <Th>Cliente</Th>
+                <Th>Agendamento</Th>
+                <Th>Funcionário</Th>
+                <Th>Confirmado?</Th>
                 <Th>Data Cadastro</Th>
                 <Th>Ações</Th>
               </Table.Tr>
@@ -91,21 +91,22 @@ export default function Employees() {
                 return (
                   <Table.Tr key={row.id} className={classes.tr}>
                     <Table.Td className={classes.td}>{row.name}</Table.Td>
-                    <Table.Td className={classes.td}>{row.email}</Table.Td>
+                    <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
+                    <Table.Td className={classes.td}>{row.name}</Table.Td>
                     <Table.Td className={classes.td}><Display.Status status={row.status} /></Table.Td>
                     <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
                     <Table.Td className={classes.td}>
                       <Group gap="xs">
-                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/funcionarios/${row.id}`}>Editar</Button>
+                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/empresas/${row.id}`}>Editar</Button>
                       </Group>
                     </Table.Td>
                   </Table.Tr>
                 )
               }) : (
                 <Table.Tr>
-                  <Table.Td colSpan={5}>
+                  <Table.Td colSpan={6}>
                     <Text fw={500} ta="center">
-                      Nenhum funcionário encontrado
+                      Nenhuma agenda encontrada
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -117,9 +118,9 @@ export default function Employees() {
           <Pagination total={data?.last_page} defaultValue={pagina} onChange={setPagina} />
         </Center>
       </Stack>
-      
-      <Modal opened={register} onClose={() => setRegister(false)} title="Cadastrar funcionário" centered>
-        <FormEmployee.Basic mutate={mutate} />
+
+      <Modal opened={register} onClose={() => setRegister(false)} title="Agendar" centered>
+        <FormSchedule.Basic mutate={mutate} />
       </Modal>
     </Container>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { IconBuilding, IconBuildingStore, IconCategory, IconChisel, IconLogout, IconTools, IconUser, IconUsers, IconUserSquare } from '@tabler/icons-react'
+import { IconBuilding, IconBuildingStore, IconCalendar, IconCategory, IconChisel, IconLogout, IconTools, IconUser, IconUsers, IconUserSquare } from '@tabler/icons-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -20,7 +20,9 @@ export default function Navbar() {
   const funcionarioAccess = !!permissions?.find(perm => perm === 'f') || false
 
   const menu = [
+    { link: `/agendamentos/${userData?.id}`, label: 'Agendamentos', icon: IconUser, visible: funcionarioAccess },
     { link: `/usuarios/${userData?.id}`, label: 'Perfil', icon: IconUser, visible: funcionarioAccess },
+    { link: `/agendamentos`, label: 'Agendamentos', icon: IconCalendar, visible: adminAccess },
     { link: '/empresas', label: 'Empresas', icon: IconBuilding, visible: adminAccess },
     { link: '/categorias', label: 'Categorias', icon: IconCategory, visible: adminAccess || gerenteAccess },
     { link: '/servicos', label: 'Serviços', icon: IconChisel, visible: adminAccess || gerenteAccess },
