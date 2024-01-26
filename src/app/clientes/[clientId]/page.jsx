@@ -15,15 +15,19 @@ import classes from './Client.module.css'
 
 export default function Client() {
   // Hooks
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, permissionsData } = useAuth()
   const { clientId } = useParams()
   const router = useRouter()
+
+  // Constants
+  const { permissions } = permissionsData || {}
 
   // States
   const [tab, setTab] = useState('profile')
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/usuarios/${clientId}` : null])
+  const { data, error, mutate } = useFetch([isAuthenticated ? `/painel/clients/${clientId}` : null])
+  const { data: clientData } = data || {}
 
   // Constants
   const tabs = [
@@ -41,19 +45,19 @@ export default function Client() {
   }
 
   if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
-    
+
   return (
     <Container size="100%" mb="50px">
       <Stack>
         <Group wrap="nowrap">
           <div>
-            <Display.Status status={data?.status} />
+            <Display.Status status={clientData?.status} />
             <Text fz="lg" fw={500} className={classes.profileName}>
-              {data?.name}
+              {clientData?.name}
             </Text>
             <Group wrap="nowrap" gap={10} mt={3}>
               <IconAt stroke={1.5} size="1rem" className={classes.profileIcon} />
-              <Text fz="xs" c="dimmed">{data?.email}</Text>
+              <Text fz="xs" c="dimmed">{clientData?.email}</Text>
             </Group>
           </div>
         </Group>
@@ -67,9 +71,9 @@ export default function Client() {
             ))}
           </Tabs.List>
           <Tabs.Panel value="profile">
-            {data && tab === 'profile' && (
+            {clientData && tab === 'profile' && (
               <Container size="100%" mb="xl" mt="xs">
-                <FormClient.Basic clientData={data} mutate={mutate} />
+                <FormClient.Basic clientData={clientData} mutate={mutate} />
               </Container>
             )}
           </Tabs.Panel>

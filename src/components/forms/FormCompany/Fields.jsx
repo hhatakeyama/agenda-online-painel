@@ -15,8 +15,8 @@ export const PhoneNumberField = ({ inputProps }) => (
 export const WhatsappField = ({ inputProps }) => (
   <InputBase
     {...inputProps}
-    label="Whatsapp"
-    placeholder="Whatsapp"
+    label="Celular / Whatsapp"
+    placeholder="Celular / Whatsapp"
     type="tel"
     component={IMaskInput}
     mask="(00) 000000000"

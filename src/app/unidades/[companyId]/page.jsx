@@ -20,7 +20,8 @@ export default function Service() {
   const [tab, setTab] = useState('company')
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/usuarios/${companyId}` : null])
+  const { data, error } = useFetch([isAuthenticated ? `/painel/companies/${companyId}` : null])
+  const { data: companyData } = data || {}
 
   // Constants
   const tabs = [
@@ -56,23 +57,23 @@ export default function Service() {
             ))}
           </Tabs.List>
           <Tabs.Panel value="company">
-            {data && tab === 'company' && (
+            {companyData && tab === 'company' && (
               <Container size="100%" mb="xl" mt="xs">
-                <FormCompany.Basic companyData={data} mutate={mutate} />
+                <FormCompany.Basic companyData={companyData} />
               </Container>
             )}
           </Tabs.Panel>
           <Tabs.Panel value="employees">
-            {data && tab === 'employees' && (
+            {companyData && tab === 'employees' && (
               <Container size="100%" mb="xl" mt="xs">
-                <FormCompany.Employees companyData={data} mutate={mutate} />
+                <FormCompany.Employees companyData={companyData} />
               </Container>
             )}
           </Tabs.Panel>
           <Tabs.Panel value="services">
-            {data && tab === 'services' && (
+            {companyData && tab === 'services' && (
               <Container size="100%" mb="xl" mt="xs">
-                <FormCompany.Services companyData={data} mutate={mutate} />
+                <FormCompany.Services companyData={companyData} />
               </Container>
             )}
           </Tabs.Panel>

@@ -24,11 +24,11 @@ export default function Employees() {
   // States
   const [search, setSearch] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
-  const [pagina, setPagina] = useState(1)
+  const [page, setPage] = useState(1)
   const [register, setRegister] = useState(false)
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? '/admin/usuarios/' : null, { busca: searchFilter, pagina }])
+  const { data, error, mutate } = useFetch([isAuthenticated ? '/admin/usuarios/' : null, { busca: searchFilter, page }])
   const loading = !data && !error
 
   function Th({ children }) {
@@ -114,7 +114,7 @@ export default function Employees() {
           </Table>
         </ScrollArea>
         <Center>
-          <Pagination total={data?.last_page} defaultValue={pagina} onChange={setPagina} />
+          <Pagination total={data?.last_page} defaultValue={page} onChange={setPage} />
         </Center>
       </Stack>
       

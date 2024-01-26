@@ -11,16 +11,14 @@ import errorHandler from '@/utils/errorHandler'
 
 import * as Fields from './Fields'
 
-export default function Basic({ clientData, mutate }) {
+export default function Basic({ clientData }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
-  const { isValidating, permissionsData } = useAuth()
+  const { isValidating } = useAuth()
 
   // Constants
   const editing = !!clientData
-  const { permissions } = permissionsData || {}
-  const adminAccess = !!permissions?.find(perm => perm === 's' || perm === 'a') || false
 
   // States
   const [error, setError] = useState(null)
@@ -28,18 +26,20 @@ export default function Basic({ clientData, mutate }) {
 
   // Form
   const initialValues = {
-    organizationId: clientData?.organizationId || null,
     name: clientData?.name || '',
     email: clientData?.email || '',
     picture: clientData?.picture || '',
-    status: clientData?.status || '1',
+    password: '',
+    confirmPassword: '',
+    status: clientData?.status?.toString?.() || '1',
   }
 
   const schema = Yup.object().shape({
-    organizationId: Yup.number().required(),
     name: Yup.string().required(),
     email: Yup.string().email().required(),
-    picture: Yup.string().required(),
+    picture: Yup.string(),
+    password: Yup.string().nullable(),
+    confirmPassword: Yup.string().nullable().oneOf([Yup.ref('password'), null], 'Senhas diferentes'),
     status: Yup.string().nullable(),
   })
 
@@ -50,39 +50,37 @@ export default function Basic({ clientData, mutate }) {
     validateInputOnBlur: true,
     validateInputOnChange: true
   })
-  
-  // Fetch
-  const optionsOrganizations = [{ label: 'Empresa 1', value: '1' }]
 
   // Actions
   const handleSubmit = async (newValues) => {
     setError(null)
     setIsSubmitting(true)
-    if (form.isDirty()) {
-      return api
-        .patch(`/admin/usuarios/${clientData?.id}/`, {
-          ...newValues, ...(newValues ? { password_confirmation: newValues.confirmPassword } : {})
-        }) // Verificar usuário logado no painel
-        .then(() => {
-          form.reset()
-          setTimeout(() => mutate(), 2000)
-          notifications.show({
-            title: 'Sucesso',
-            message: 'Dados atualizados com sucesso!',
-            color: 'green'
-          })
+    const { password, confirmPassword, ...restValues } = newValues
+    return await api
+      [editing ? 'patch' : 'post'](`/painel/clients/${editing ? `update/${clientData?.id}` : 'create'}/`, {
+        ...restValues,
+        ...(password && password !== '' ? { password: password } : {}),
+        ...(confirmPassword ? { password_confirmed: confirmPassword } : {})
+      })
+      .then(() => {
+        notifications.show({
+          title: 'Sucesso',
+          message: 'Dados atualizados com sucesso!',
+          color: 'green'
         })
-        .catch(error => {
-          notifications.show({
-            title: 'Erro',
-            message:
-              errorHandler(error.response.data.errors).messages ||
-              'Erro ao atualizar os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.',
-            color: 'red'
-          })
+        if (editing) mutateGlobal(`/painel/clients/${clientData.id}/`)
+        else window.location = '/clientes'
+      })
+      .catch(error => {
+        notifications.show({
+          title: 'Erro',
+          message:
+            errorHandler(error.response.data.errors).messages ||
+            'Erro ao atualizar os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.',
+          color: 'red'
         })
-        .finally(() => setIsSubmitting(false))
-    }
+      })
+      .finally(() => setIsSubmitting(false))
   }
 
   return (
@@ -95,22 +93,17 @@ export default function Basic({ clientData, mutate }) {
         <Grid.Col span={editing ? { base: 12, lg: 6 } : { base: 12 }}>
           <Stack>
             <Grid>
-              {adminAccess && <Grid.Col span={{ base: 12 }}>
-                <Fields.OrganizationField
-                  inputProps={{
-                    ...form.getInputProps('organizationId'),
-                    data: optionsOrganizations,
-                    disabled: isSubmitting,
-                    searchable: true,
-                    required: true
-                  }}
-                />
-              </Grid.Col>}
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.NameField inputProps={{ ...form.getInputProps('name'), required: true, disabled: isSubmitting }} />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.EmailField inputProps={{ ...form.getInputProps('email'), required: true, disabled: isSubmitting }} />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Fields.PasswordField inputProps={{ ...form.getInputProps('password'), disabled: isSubmitting }} />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Fields.ConfirmPasswordField inputProps={{ ...form.getInputProps('confirmPassword'), disabled: isSubmitting }} />
               </Grid.Col>
               <Grid.Col span={6}>
                 <Select

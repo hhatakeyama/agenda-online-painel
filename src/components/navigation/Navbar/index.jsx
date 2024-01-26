@@ -28,7 +28,7 @@ export default function Navbar() {
     { link: '/servicos', label: 'Serviços', icon: IconChisel, visible: adminAccess || gerenteAccess },
     { link: '/funcionarios', label: 'Funcionários', icon: IconTools, visible: adminAccess || gerenteAccess },
     { link: '/unidades', label: 'Unidades', icon: IconBuildingStore, visible: adminAccess || gerenteAccess },
-    { link: '/clientes', label: 'Clientes', icon: IconUsers, visible: adminAccess || gerenteAccess },
+    { link: '/clientes', label: 'Clientes', icon: IconUsers, visible: adminAccess },
     { link: '/usuarios', label: 'Usuários', icon: IconUserSquare, visible: adminAccess || gerenteAccess },
     // { link: '/eventos', label: 'Eventos', icon: IconTimelineEventExclamation, visible: adminAccess },
     // { link: '/relatorios', label: 'Relatórios', icon: IconGraph, visible: adminAccess },

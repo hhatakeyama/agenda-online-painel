@@ -15,15 +15,19 @@ import classes from './User.module.css'
 
 export default function User() {
   // Hooks
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, permissionsData } = useAuth()
   const { userId } = useParams()
   const router = useRouter()
+
+  // Constants
+  const allowed = permissionsData?.permissions
 
   // States
   const [tab, setTab] = useState('profile')
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/usuarios/${userId}` : null])
+  const { data, error } = useFetch([isAuthenticated && allowed ? `/painel/users/${userId}/` : null])
+  const { data: userData } = data || {}
 
   // Constants
   const tabs = [
@@ -47,13 +51,13 @@ export default function User() {
       <Stack>
         <Group wrap="nowrap">
           <div>
-            <Display.Status status={data?.status} />
+            <Display.Status status={userData?.status} />
             <Text fz="lg" fw={500} className={classes.profileName}>
-              {data?.name}
+              {userData?.name}
             </Text>
             <Group wrap="nowrap" gap={10} mt={3}>
               <IconAt stroke={1.5} size="1rem" className={classes.profileIcon} />
-              <Text fz="xs" c="dimmed">{data?.email}</Text>
+              <Text fz="xs" c="dimmed">{userData?.email}</Text>
             </Group>
           </div>
         </Group>
@@ -67,9 +71,9 @@ export default function User() {
             ))}
           </Tabs.List>
           <Tabs.Panel value="profile">
-            {data && tab === 'profile' && (
+            {userData && tab === 'profile' && (
               <Container size="100%" mb="xl" mt="xs">
-                <FormUser.Basic userData={data} mutate={mutate} />
+                <FormUser.Basic userData={userData} />
               </Container>
             )}
           </Tabs.Panel>

@@ -4,10 +4,10 @@ import { Button, Center, Container, Group, Loader, Stack, Text } from '@mantine/
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-import { useFetch } from '@/hooks'
+// import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 
-import Dashboard from './Dashboard'
+// import Dashboard from './Dashboard'
 
 export default function Home() {
   // Hooks
@@ -20,8 +20,8 @@ export default function Home() {
   const gerenteAccess = !!permissions?.find(perm => perm === 'g') || false
 
   // Fetch
-  const { data, error } = useFetch([isAuthenticated ? '/admin/dashboard/' : null])
-  const isLoading = !data && !error
+  // const { data, error } = useFetch([isAuthenticated ? '/painel/dashboard/' : null])
+  // const isLoading = !data && !error
 
   // Effects
   useEffect(() => {
@@ -33,14 +33,14 @@ export default function Home() {
   return (
     <Container>
       <Stack>
-        {(adminAccess || gerenteAccess) && (
+        {/* {(adminAccess || gerenteAccess) && (
           <>
             <Text><strong>Dashboard</strong></Text>
             {isLoading ? <Loader color="blue" /> : (
               <Dashboard dashboardData={data} />
             )}
           </>
-        )}
+        )} */}
         <Text>Olá <strong>{userData?.name}</strong>, seja bem-vindo ao painel do Agenda Online.</Text>
         <Text>Acesse o menu abaixo.</Text>
 

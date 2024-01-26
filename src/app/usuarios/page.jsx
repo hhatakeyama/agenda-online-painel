@@ -24,11 +24,12 @@ export default function Users() {
   // States
   const [search, setSearch] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
-  const [pagina, setPagina] = useState(1)
+  const [page, setPage] = useState(1)
   const [register, setRegister] = useState(false)
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? '/admin/usuarios/' : null, { busca: searchFilter, pagina }])
+  const { data, error, mutate } = useFetch([isAuthenticated ? '/painel/users/' : null, { busca: searchFilter, page }])
+  const { data: { data: listUsers } } = data || { data: {} }
   const loading = !data && !error
 
   function Th({ children }) {
@@ -74,23 +75,25 @@ export default function Users() {
           onChange={event => setSearch(event.target.value)}
           onBlur={event => setSearchFilter(event.target.value)}
         />
-        <ScrollArea h={data?.data?.length > 15 ? "55vh" : "auto"} offsetScrollbars>
+        <ScrollArea h={listUsers?.length > 15 ? "55vh" : "auto"} offsetScrollbars>
           <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
             <Table.Tbody>
               <Table.Tr>
                 <Th>Nome</Th>
                 <Th>E-mail</Th>
+                <Th>Tipo</Th>
                 <Th>Ativo</Th>
                 <Th>Data Cadastro</Th>
                 <Th>Ações</Th>
               </Table.Tr>
             </Table.Tbody>
             <Table.Tbody>
-              {data?.data?.length > 0 ? data?.data?.map((row) => {
+              {listUsers?.length > 0 ? listUsers?.map((row) => {
                 return (
                   <Table.Tr key={row.id} className={classes.tr}>
                     <Table.Td className={classes.td}>{row.name}</Table.Td>
                     <Table.Td className={classes.td}>{row.email}</Table.Td>
+                    <Table.Td className={classes.td}><Display.UserType type={row.type} /></Table.Td>
                     <Table.Td className={classes.td}><Display.Status status={row.status} /></Table.Td>
                     <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
                     <Table.Td className={classes.td}>
@@ -113,7 +116,7 @@ export default function Users() {
           </Table>
         </ScrollArea>
         <Center>
-          <Pagination total={data?.last_page} defaultValue={pagina} onChange={setPagina} />
+          <Pagination total={data?.last_page} defaultValue={page} onChange={setPage} />
         </Center>
       </Stack>
       

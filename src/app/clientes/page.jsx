@@ -24,11 +24,12 @@ export default function Clients() {
   // States
   const [search, setSearch] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
-  const [pagina, setPagina] = useState(1)
+  const [page, setPage] = useState(1)
   const [register, setRegister] = useState(false)
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? '/admin/usuarios/' : null, { busca: searchFilter, pagina }])
+  const { data, error, mutate } = useFetch([isAuthenticated ? '/painel/clients/' : null, { busca: searchFilter, page }])
+  const { data: { data: list }} = data || { data: {} }
   const loading = !data && !error
 
   function Th({ children }) {
@@ -74,7 +75,7 @@ export default function Clients() {
           onChange={event => setSearch(event.target.value)}
           onBlur={event => setSearchFilter(event.target.value)}
         />
-        <ScrollArea h={data?.data?.length > 15 ? "55vh" : "auto"} offsetScrollbars>
+        <ScrollArea h={list?.length > 15 ? "55vh" : "auto"} offsetScrollbars>
           <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
             <Table.Tbody>
               <Table.Tr>
@@ -86,7 +87,7 @@ export default function Clients() {
               </Table.Tr>
             </Table.Tbody>
             <Table.Tbody>
-              {data?.data?.length > 0 ? data?.data?.map((row) => {
+              {list?.length > 0 ? list?.map((row) => {
                 return (
                   <Table.Tr key={row.id} className={classes.tr}>
                     <Table.Td className={classes.td}>{row.name}</Table.Td>
@@ -113,7 +114,7 @@ export default function Clients() {
           </Table>
         </ScrollArea>
         <Center>
-          <Pagination total={data?.last_page} defaultValue={pagina} onChange={setPagina} />
+          <Pagination total={data?.last_page} defaultValue={page} onChange={setPage} />
         </Center>
       </Stack>
       

@@ -25,18 +25,18 @@ function useProvideAuth() {
 
   // // Fetch
   const { data: userData, isValidating: userIsValidating } = useFetch([
-    !!isAuthenticated ? '/admin/accounts/me/' : null
+    !!isAuthenticated ? '/painel/users/me/' : null
   ])
 
-  const { data: permissionsData, isValidating: permissionsIsValidating } = useFetch([
-    !!isAuthenticated ? '/admin/accounts/permissions/' : null
-  ])
+  // const { data: permissionsData, isValidating: permissionsIsValidating } = useFetch([
+  //   !!isAuthenticated ? '/permissions/' : null
+  // ])
 
   // Login with credentials
   const login = async (credentials) => {
     setLoading(true)
     const response = await api
-      .post('/admin/authentication/login/', {
+      .post('/login/', {
         email: credentials.email,
         password: credentials.password
       })
@@ -72,7 +72,6 @@ function useProvideAuth() {
     } finally {
       removeCookie(cookieTokenString)
       setIsAuthenticated(false)
-      setPermissionsData(null)
     }
   }
 
@@ -116,8 +115,8 @@ function useProvideAuth() {
   }, [verifyToken, cookieToken])
 
   useEffect(() => {
-    setIsValidating(loading || userIsValidating || permissionsIsValidating)
-  }, [loading, userIsValidating, permissionsIsValidating])
+    setIsValidating(loading || userIsValidating)
+  }, [loading, userIsValidating])
 
   // Clear all SWR cache (experimental)
   useEffect(() => {
@@ -133,8 +132,8 @@ function useProvideAuth() {
     verifyToken,
     isAuthenticated,
     isValidating,
-    userData,
-    permissionsData
+    userData: userData?.data || null,
+    permissionsData: { permissions: [userData?.data?.type] } || null
   }
 }
 

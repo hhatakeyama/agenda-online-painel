@@ -23,10 +23,10 @@ export default function Eventos() {
   const [search, setSearch] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
   const [evento, setEvento] = useState('')
-  const [pagina, setPagina] = useState(1)
+  const [page, setPage] = useState(1)
 
   // Fetch
-  const { data, error } = useFetch([isAuthenticated ? '/admin/events/' : null, { busca: searchFilter, pagina, evento }])
+  const { data, error } = useFetch([isAuthenticated ? '/admin/events/' : null, { busca: searchFilter, page, evento }])
   const loading = !data && !error
 
   function Th({ children }) {
@@ -119,7 +119,7 @@ export default function Eventos() {
               <Table.Tr>
                 <Table.Td colSpan={5}>
                   <Center>
-                    <Pagination total={data?.last_page} defaultValue={pagina} onChange={setPagina} />
+                    <Pagination total={data?.last_page} defaultValue={page} onChange={setPage} />
                   </Center>
                 </Table.Td>
               </Table.Tr>

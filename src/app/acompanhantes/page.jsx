@@ -19,14 +19,14 @@ export default function Acompanhantes() {
   const router = useRouter()
 
   // States
-  const [pagina, setPagina] = useState(1)
+  const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
   const [opened, setOpened] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
   // Fetch
-  const { data, mutate } = useFetch([isAuthenticated ? '/admin/acompanhantes' : null, { busca: searchFilter, pagina }])
+  const { data, mutate } = useFetch([isAuthenticated ? '/admin/acompanhantes' : null, { busca: searchFilter, page }])
   const { data: acompanhantes = [] } = data || {}
 
   // Actions
@@ -194,7 +194,7 @@ export default function Acompanhantes() {
               <Table.Tr>
                 <Table.Td colSpan={8}>
                   <Center>
-                    <Pagination total={data?.last_page} defaultValue={pagina} onChange={setPagina} />
+                    <Pagination total={data?.last_page} defaultValue={page} onChange={setPage} />
                   </Center>
                 </Table.Td>
               </Table.Tr>

@@ -11,11 +11,11 @@ import errorHandler from '@/utils/errorHandler'
 
 import * as Fields from './Fields'
 
-export default function Basic({ companyData, mutate }) {
+export default function Basic({ companyData }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
-  const { isValidating, permissionsData } = useAuth()
+  const { isAuthenticated, isValidating, permissionsData } = useAuth()
 
   // Constants
   const editing = !!companyData
@@ -25,35 +25,34 @@ export default function Basic({ companyData, mutate }) {
   // States
   const [error, setError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [socialMedias, setSocialMedias] = useState(companyData?.socialMedia ? JSON.parse(companyData?.socialMedia) : { "facebook": "https://facebook.com/", "twitter": "https://twitter.com/", "instagram": "https://instagram.com/" })
 
   // Form
   const initialValues = {
-    organizationId: companyData?.organizationId || null,
+    organization_id: companyData?.organization_id?.toString() || null,
     name: companyData?.name || '',
     address: companyData?.address || '',
     district: companyData?.district || '',
     cep: companyData?.cep || '',
-    city: companyData?.city || '',
+    city_id: companyData?.city_id?.toString() || '',
     state: companyData?.state || '',
     thumb: companyData?.thumb || '',
-    whatsapp: companyData?.whatsapp || '',
     phone: companyData?.phone || '',
     mobilePhone: companyData?.mobilePhone || '',
     email: companyData?.email || '',
     socialMedia: companyData?.socialMedia || '',
-    status: companyData?.status || '1',
+    status: companyData?.status?.toString() || '1',
   }
 
   const schema = Yup.object().shape({
-    organizationId: Yup.number().required(),
+    organization_id: Yup.number().required(),
     name: Yup.string().required(),
     address: Yup.string().nullable(),
     district: Yup.string().nullable(),
     cep: Yup.string().nullable(),
-    city: Yup.string().nullable(),
+    city_id: Yup.string().nullable(),
     state: Yup.string().nullable(),
     thumb: Yup.string().nullable(),
-    whatsapp: Yup.string().nullable(),
     phone: Yup.string().nullable(),
     mobilePhone: Yup.string().nullable(),
     email: Yup.string().nullable().email(),
@@ -70,35 +69,44 @@ export default function Basic({ companyData, mutate }) {
   })
 
   // Fetch
-  const { data } = useFetch([`/admin/estados/`])
-  const { data: dataCities } = useFetch([form.values.state ? `/admin/estados/${form.values.state}/cidades` : null])
-  const optionsStates = data?.map(state => ({ value: state.id, label: state.nome })) || []
-  const optionsCities = dataCities?.map(city => ({ value: city.id.toString(), label: city.nome })) || []
-  const optionsOrganizations = [{ label: 'Empresa 1', value: '1' }]
+  const { data } = useFetch([`/states/`])
+  const { data: dataCities } = useFetch([form.values.state ? `/states/${form.values.state}/cities/` : null])
+  const optionsStates = data?.data?.map(state => ({ value: state.id.toString(), label: state.name })) || []
+  const optionsCities = dataCities?.data?.map(city => ({ value: city.id.toString(), label: city.name })) || []
+  const { data: organizationsData } = useFetch([isAuthenticated ? `/painel/organizations/` : null])
+  const { data: { data: list = [] } } = organizationsData || { data: {} }
+  const organizationsOptions = list?.map(item => ({ label: item.registeredName, value: item.id.toString() }))
+  const optionsOrganizations = [{ label: 'Sem Empresa', value: '0' }, ...organizationsOptions]
 
   // Actions
   const handleSubmit = async (newValues) => {
     setError(null)
     setIsSubmitting(true)
-    if (form.isDirty()) {
-      return api
-        .patch(`/admin/usuarios/${companyData?.id}/`, { ...newValues }) // Verificar usuário logado no painel
-        .then(() => {
-          form.reset()
-          setTimeout(() => mutate(), 2000)
-          notifications.show({ title: 'Sucesso', message: 'Dados atualizados com sucesso!', color: 'green' })
+    const { ...restValues } = newValues
+    return api
+      [editing ? 'patch' : 'post'](`/painel/companies/${editing ? `update/${companyData?.id}` : 'create'}/`, {
+        ...restValues,
+        socialMedia: JSON.stringify(socialMedias)
+      })
+      .then(() => {
+        notifications.show({ title: 'Sucesso', message: 'Dados atualizados com sucesso!', color: 'green' })
+      })
+      .catch(error => {
+        notifications.show({
+          title: 'Erro',
+          message:
+            errorHandler(error.response.data.errors).messages ||
+            'Erro ao atualizar os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.',
+          color: 'red'
         })
-        .catch(error => {
-          notifications.show({
-            title: 'Erro',
-            message:
-              errorHandler(error.response.data.errors).messages ||
-              'Erro ao atualizar os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.',
-            color: 'red'
-          })
-        })
-        .finally(() => setIsSubmitting(false))
-    }
+      })
+      .finally(() => setIsSubmitting(false))
+  }
+
+  const handleSocialMedias = (type, value) => {
+    const newData = { ...socialMedias, [type]: value }
+    setSocialMedias(newData)
+    form.setFieldValue('socialMedia', JSON.stringify(newData))
   }
 
   return (
@@ -111,7 +119,7 @@ export default function Basic({ companyData, mutate }) {
               {adminAccess && <Grid.Col span={{ base: 12 }}>
                 <Fields.OrganizationField
                   inputProps={{
-                    ...form.getInputProps('organizationId'),
+                    ...form.getInputProps('organization_id'),
                     data: optionsOrganizations,
                     disabled: isSubmitting,
                     searchable: true,
@@ -134,25 +142,25 @@ export default function Basic({ companyData, mutate }) {
               <Grid.Col span={{ base: 4 }}>
                 <Fields.StateField
                   inputProps={{
-                    ...form.getInputProps('state'),
                     data: optionsStates,
                     disabled: isSubmitting,
                     searchable: true,
+                    ...form.getInputProps('state'),
                   }}
                 />
               </Grid.Col>
               <Grid.Col span={{ base: 8 }}>
                 {optionsCities.length > 0 && <Fields.CityField
                   inputProps={{
-                    ...form.getInputProps('city'),
                     data: optionsCities,
                     disabled: !form.values.state || isSubmitting,
                     searchable: true,
+                    ...form.getInputProps('city_id'),
                   }}
                 />}
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.WhatsappField inputProps={{ ...form.getInputProps('whatsapp'), disabled: isSubmitting }} />
+                <Fields.WhatsappField inputProps={{ ...form.getInputProps('mobilePhone'), disabled: isSubmitting }} />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.PhoneNumberField inputProps={{ ...form.getInputProps('phone'), disabled: isSubmitting }} />
@@ -174,16 +182,16 @@ export default function Basic({ companyData, mutate }) {
         </Grid.Col>
         <Grid.Col span={editing ? { base: 12, lg: 6 } : { base: 12 }} hidden={!editing}>
           thumb
-          
+
           <Grid>
             <Grid.Col span={{ base: 12, sm: 6 }}>
-              <TextInput {...form.getInputProps('socialMedia')} disabled={isSubmitting} label="Facebook" placeholder="Facebook" type="text" />
+              <TextInput disabled={isSubmitting} label="Facebook" placeholder="Facebook" type="text" value={socialMedias.facebook} onChange={e => handleSocialMedias('facebook', e.target.value)} />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
-              <TextInput {...form.getInputProps('socialMedia')} disabled={isSubmitting} label="Instagram" placeholder="Instagram" type="text" />
+              <TextInput disabled={isSubmitting} label="Instagram" placeholder="Instagram" type="text" value={socialMedias.twitter} onChange={e => handleSocialMedias('twitter', e.target.value)} />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 6 }}>
-              <TextInput {...form.getInputProps('socialMedia')} disabled={isSubmitting} label="YouTube" placeholder="YouTube" type="text" />
+              <TextInput disabled={isSubmitting} label="YouTube" placeholder="YouTube" type="text" value={socialMedias.instagram} onChange={e => handleSocialMedias('instagram', e.target.value)} />
             </Grid.Col>
           </Grid>
         </Grid.Col>
