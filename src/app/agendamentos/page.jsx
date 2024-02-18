@@ -18,9 +18,6 @@ export default function Agendamentos() {
   const router = useRouter()
   const { isAuthenticated, permissionsData } = useAuth()
 
-  // Constants
-  const { permissions } = permissionsData || {}
-
   // States
   const [search, setSearch] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
@@ -47,7 +44,7 @@ export default function Agendamentos() {
   // Validations
   if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
 
-  if (permissions?.find(item => item !== 's' && item !== 'a')) return router.push('/')
+  if (isAuthenticated === true && permissionsData && !permissionsData.sa) return router.push('/')
 
   return (
     <Container size="100%" mb="50px">

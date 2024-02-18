@@ -15,12 +15,9 @@ import classes from './Client.module.css'
 
 export default function Client() {
   // Hooks
-  const { isAuthenticated, permissionsData } = useAuth()
+  const { isAuthenticated } = useAuth()
   const { clientId } = useParams()
   const router = useRouter()
-
-  // Constants
-  const { permissions } = permissionsData || {}
 
   // States
   const [tab, setTab] = useState('profile')

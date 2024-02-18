@@ -1,44 +1,44 @@
-import { Alert, Button, Grid, Group, LoadingOverlay, Select, Stack, TextInput, useMantineTheme } from '@mantine/core'
+import { Button, Grid, Group, LoadingOverlay, Select, Stack, TextInput, useMantineTheme } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import { useParams } from 'next/navigation'
 import React, { useState } from 'react'
+import { useSWRConfig } from 'swr'
 
 import { useAuth } from '@/providers/AuthProvider'
-import { api, Yup } from '@/utils'
+import { api, slugify, Yup } from '@/utils'
 import errorHandler from '@/utils/errorHandler'
 
 import * as Fields from './Fields'
 
-export default function Basic({ organizationData, mutate }) {
+export default function Basic({ organizationData, onClose }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
-  const { isValidating } = useAuth()
+  const { mutate: mutateGlobal } = useSWRConfig()
+  const { isValidating, permissionsData } = useAuth()
+  const { organizationId } = useParams()
 
   // Constants
   const editing = !!organizationData
 
   // States
-  const [error, setError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Form
   const initialValues = {
-    name: organizationData?.name || '',
-    email: organizationData?.email || '',
-    password: '',
-    confirmPassword: '',
-    type: 'f',
-    status: organizationData?.status || '1',
+    registeredName: organizationData?.registeredName || '',
+    tradingName: organizationData?.tradingName || '',
+    cnpj: organizationData?.cnpj || '',
+    status: organizationData?.status?.toString?.() || '1',
   }
 
   const schema = Yup.object().shape({
-    name: Yup.string().required(),
-    email: Yup.string().email().required(),
-    password: Yup.string().nullable(),
-    confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Senhas diferentes'),
-    status: Yup.string().nullable(),
+    registeredName: Yup.string().required(),
+    tradingName: Yup.string().required(),
+    cnpj: Yup.string().required(),
+    status: Yup.number().nullable(),
   })
 
   // Mantine form
@@ -51,19 +51,24 @@ export default function Basic({ organizationData, mutate }) {
 
   // Actions
   const handleSubmit = async (newValues) => {
-    setError(null)
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        .patch(`/admin/usuarios/${organizationData?.id}/`, {
-          ...newValues, ...(newValues ? { password_confirmation: newValues.confirmPassword } : {})
-        }) // Verificar usuário logado no painel
+        [editing ? 'patch' : 'post'](`/admin/organizations${editing ? `/update/${organizationId}` : ''}/`, {
+          ...newValues,
+          slug: slugify(newValues.tradingName)
+        })
         .then(() => {
-          form.reset()
-          setTimeout(() => mutate(), 2000)
+          if (editing) {
+            mutateGlobal(`/admin/organizations/${organizationId}/`)
+            form.resetTouched()
+            form.resetDirty()
+          } else {
+            onClose?.()
+          }
           notifications.show({
             title: 'Sucesso',
-            message: 'Dados atualizados com sucesso!',
+            message: `Dados ${editing ? 'atualizados' : 'cadastrados'} com sucesso!`,
             color: 'green'
           })
         })
@@ -72,7 +77,7 @@ export default function Basic({ organizationData, mutate }) {
             title: 'Erro',
             message:
               errorHandler(error.response.data.errors).messages ||
-              'Erro ao atualizar os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.',
+              `Erro ao ${editing ? 'atualizar' : 'cadastrar'} os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.`,
             color: 'red'
           })
         })
@@ -88,34 +93,29 @@ export default function Basic({ organizationData, mutate }) {
           <Stack>
             <Grid>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Razão Social" placeholder="Razão Social" type="text" required />
+                <TextInput {...form.getInputProps('registeredName')} disabled={isSubmitting} label="Razão Social" placeholder="Razão Social" type="text" required />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Nome Fantasia" placeholder="Nome Fantasia" type="text" required />
+                <TextInput {...form.getInputProps('tradingName')} disabled={isSubmitting} label="Nome Fantasia" placeholder="Nome Fantasia" type="text" required />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.TaxDocumentField
-                  inputProps={{
-                    ...form.getInputProps('name'),
-                    disabled: isSubmitting,
-                  }}
-                />
+                <Fields.TaxDocumentField inputProps={{ ...form.getInputProps('cnpj'), disabled: isSubmitting, required: true }} />
               </Grid.Col>
-              <Grid.Col span={6}>
-                <Select
-                  label="Conta ativa?"
-                  placeholder="Conta ativa?"
-                  data={[{ value: '1', label: 'Sim' }, { value: '0', label: 'Não' }]}
-                  disabled={isSubmitting}
-                  {...form.getInputProps('status')}
-                />
-              </Grid.Col>
+              {permissionsData?.sa && (
+                <Grid.Col span={6}>
+                  <Select
+                    label="Conta ativa?"
+                    placeholder="Conta ativa?"
+                    data={[{ value: '1', label: 'Sim' }, { value: '0', label: 'Não' }]}
+                    disabled={isSubmitting}
+                    {...form.getInputProps('status')}
+                  />
+                </Grid.Col>
+              )}
             </Grid>
           </Stack>
         </Grid.Col>
       </Grid>
-
-      {!!error && <Alert color="red" title="Erro">{error}</Alert>}
 
       <Group mt="xl">
         <Button

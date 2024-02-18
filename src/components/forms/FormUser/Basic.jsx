@@ -20,15 +20,10 @@ export default function Basic({ userData }) {
   const { isAuthenticated, isValidating, permissionsData } = useAuth()
 
   // Constants
-  const { permissions } = permissionsData || {}
-  const superAccess = !!permissions?.find(perm => perm === 's') || false
-  const adminAccess = !!permissions?.find(perm => perm === 'a') || false
-  const gerenteAccess = !!permissions?.find(perm => perm === 'g') || false
-
   const tipos = [
-    { value: 's', label: 'Superadmin', visible: superAccess },
-    { value: 'a', label: 'Administrador', visible: superAccess || adminAccess },
-    { value: 'g', label: 'Gerente', visible: superAccess || adminAccess || gerenteAccess },
+    { value: 's', label: 'Superadmin', visible: permissionsData?.s },
+    { value: 'a', label: 'Administrador', visible: permissionsData?.sa },
+    { value: 'g', label: 'Gerente', visible: permissionsData?.sag },
   ]
   const editing = !!userData
 
@@ -110,7 +105,7 @@ export default function Basic({ userData }) {
         <Grid.Col span={editing ? { base: 12, lg: 6 } : { base: 12 }}>
           <Stack>
             <Grid>
-              {(superAccess || adminAccess) && <Grid.Col span={{ base: 12 }}>
+              {permissionsData?.sa && <Grid.Col span={{ base: 12 }}>
                 <Fields.OrganizationField
                   inputProps={{
                     data: optionsOrganizations,

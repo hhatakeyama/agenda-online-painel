@@ -1,18 +1,19 @@
 import '@mantine/core/styles.css'
-import '@mantine/notifications/styles.css';
+import '@mantine/notifications/styles.css'
 
 import { Box, ColorSchemeScript, Group, Stack } from '@mantine/core'
-import { Notifications } from '@mantine/notifications';
+import { Notifications } from '@mantine/notifications'
 
 import Content from '@/components/navigation/Content'
 import Footer from '@/components/navigation/Footer'
 import Header from '@/components/navigation/Header'
 import Navbar from '@/components/navigation/Navbar'
 
+import classes from './Global.module.css'
 import Providers from './Providers'
 
 export const metadata = {
-  title: 'Agendle Admin',
+  title: 'Skedyou Admin',
   description: 'Painel',
 }
 
@@ -22,7 +23,7 @@ export default function RootLayout({ children }) {
       <head>
         <ColorSchemeScript />
       </head>
-      <body>
+      <body className={classes.body}>
         <Providers>
           <Notifications position="top-right" autoClose={10000} zIndex={10000} top={95} />
           <Stack gap={0}>

@@ -21,25 +21,25 @@ export default function Photos({ acompanhanteData, mutate }) {
   // Actions
   const handleFileUpload = async payload => {
     await Promise.all(payload.map(file => {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileName', file.name);
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('fileName', file.name)
       if (file?.size < 5242880) {
         api
           .post(`/admin/acompanhantes/${acompanhanteData?.usuario?.id}/fotos`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
           })
-          .catch(error => error?.response);
+          .catch(error => error?.response)
       }
     })).then(requests => {
       console.log("requests", requests)
-      const failedRequests = requests?.filter(request => request?.status && ![200, 201].includes(request?.status));
+      const failedRequests = requests?.filter(request => request?.status && ![200, 201].includes(request?.status))
       if (failedRequests.length) {
         notifications.show({
           title: 'Erro',
           title: `Erro no envio de ${failedRequests.length} arquivo(s)`,
           color: 'red',
-        });
+        })
       } else {
         setTimeout(() => mutate(), 2000)
         notifications.show({
@@ -54,7 +54,7 @@ export default function Photos({ acompanhanteData, mutate }) {
         message: 'Erro ao carregar as fotos. Entre em contato com o administrador do site ou tente novamente mais tarde.',
         color: 'red'
       })
-    });
+    })
   }
 
   // Effects

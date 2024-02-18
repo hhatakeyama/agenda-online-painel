@@ -9,8 +9,6 @@ import classes from './Footer.module.css'
 const links = [
   { link: '#', label: 'Contact' },
   { link: '#', label: 'Privacy' },
-  { link: '#', label: 'Blog' },
-  { link: '#', label: 'Careers' },
 ]
 
 export default function Footer() {

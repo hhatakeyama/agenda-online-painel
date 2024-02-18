@@ -43,7 +43,7 @@ export default function Agendas() {
   //   dataFim = dataFimArray[2] + "/" + dataFimArray[1] + "/" + dataFimArray[0]
   // }
   let texto = ''
-  let whatsapp = '';
+  let whatsapp = ''
   if (data?.telefones && data?.telefones.length > 0 && data?.telefones[0] && data?.url) {
     whatsapp = data?.telefones[0].numero
     const dataInicio = dateToHuman(data?.created_at)

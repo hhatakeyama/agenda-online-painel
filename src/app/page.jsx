@@ -14,11 +14,6 @@ export default function Home() {
   const router = useRouter()
   const { isAuthenticated, permissionsData, userData } = useAuth()
 
-  // Constants
-  const { permissions } = permissionsData || {}
-  const adminAccess = !!permissions?.find(perm => perm === 's' || perm === 'a') || false
-  const gerenteAccess = !!permissions?.find(perm => perm === 'g') || false
-
   // Fetch
   // const { data, error } = useFetch([isAuthenticated ? '/painel/dashboard/' : null])
   // const isLoading = !data && !error
@@ -46,10 +41,10 @@ export default function Home() {
 
         <Group>
           <Button component="a" href="/agendamentos">Agendamentos</Button>
-          {adminAccess && (
+          {permissionsData?.sa && (
             <Button component="a" href="/empresa">Empresa</Button>
           )}
-          {(adminAccess || gerenteAccess) && (
+          {permissionsData?.sag && (
             <>
               <Button component="a" href="/categorias">Categorias</Button>
               <Button component="a" href="/servicos">Serviços</Button>

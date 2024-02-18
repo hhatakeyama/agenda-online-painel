@@ -7,8 +7,8 @@ import classes from './FormAcompanhante.module.css'
 
 export default function Photos({ onFileUpload }) {
   // Hooks
-  const theme = useMantineTheme();
-  const openRef = useRef(null);
+  const theme = useMantineTheme()
+  const openRef = useRef(null)
 
   return (
     <div className={classes.wrapper}>

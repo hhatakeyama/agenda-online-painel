@@ -1,5 +1,5 @@
-import { InputBase, Select } from "@mantine/core";
-import { IMaskInput } from "react-imask";
+import { InputBase, Select } from "@mantine/core"
+import { IMaskInput } from "react-imask"
 
 export const PhoneNumberField = ({ inputProps }) => (
   <InputBase

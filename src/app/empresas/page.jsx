@@ -1,25 +1,23 @@
 'use client'
 
-import { Box, Button, Center, Container, Group, Loader, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Stack, Table, Text, TextInput } from '@mantine/core'
-import { IconSearch } from '@tabler/icons-react'
+import { Box, Button, Center, Container, Group, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Stack, Table, Text, TextInput } from '@mantine/core'
+import { IconExternalLink, IconSearch } from '@tabler/icons-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import * as Display from '@/components/display'
 import { FormOrganization } from '@/components/forms'
+import guardAccount from '@/guards/AccountGuard'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { dateToHuman } from '@/utils'
 
 import classes from './Organizations.module.css'
 
-export default function Organizations() {
+function Organizations() {
   // Hooks
   const router = useRouter()
   const { isAuthenticated, permissionsData } = useAuth()
-
-  // Constants
-  const { permissions } = permissionsData || {}
 
   // States
   const [search, setSearch] = useState('')
@@ -28,7 +26,8 @@ export default function Organizations() {
   const [register, setRegister] = useState(false)
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? '/admin/usuarios/' : null, { busca: searchFilter, page }])
+  const { data, error, mutate } = useFetch([isAuthenticated ? '/admin/organizations/' : null, { search: searchFilter, page }])
+  const { data: results = [], last_page } = data?.data || {}
   const loading = !data && !error
 
   function Th({ children }) {
@@ -39,15 +38,8 @@ export default function Organizations() {
     )
   }
 
-  // Effects
-  useEffect(() => {
-    if (isAuthenticated === false) return router.push('/accounts/login')
-  }, [isAuthenticated, router])
-
   // Validations
-  if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
-
-  if (permissions?.find(item => item !== 's' && item !== 'a')) return router.push('/')
+  if (isAuthenticated === true && permissionsData && !permissionsData.sa) return router.push('/')
 
   return (
     <Container size="100%" mb="50px">
@@ -74,7 +66,7 @@ export default function Organizations() {
           onChange={event => setSearch(event.target.value)}
           onBlur={event => setSearchFilter(event.target.value)}
         />
-        <ScrollArea h={data?.data?.length > 15 ? "55vh" : "auto"} offsetScrollbars>
+        <ScrollArea h={results.length > 15 ? "55vh" : "auto"} offsetScrollbars>
           <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
             <Table.Tbody>
               <Table.Tr>
@@ -87,16 +79,17 @@ export default function Organizations() {
               </Table.Tr>
             </Table.Tbody>
             <Table.Tbody>
-              {data?.data?.length > 0 ? data?.data?.map((row) => {
+              {results.length > 0 ? results.map((row) => {
                 return (
                   <Table.Tr key={row.id} className={classes.tr}>
-                    <Table.Td className={classes.td}>{row.name}</Table.Td>
-                    <Table.Td className={classes.td}>{row.name}</Table.Td>
-                    <Table.Td className={classes.td}>CNPJ</Table.Td>
+                    <Table.Td className={classes.td}>{row.registeredName}</Table.Td>
+                    <Table.Td className={classes.td}>{row.tradingName}</Table.Td>
+                    <Table.Td className={classes.td}>{row.cnpj}</Table.Td>
                     <Table.Td className={classes.td}><Display.Status status={row.status} /></Table.Td>
-                    <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
+                    <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : '--'}</Table.Td>
                     <Table.Td className={classes.td}>
                       <Group gap="xs">
+                        <Button size="compact-sm" component="a" color="blue" title="Ver Site" href={`${process.env.NEXT_PUBLIC_SITE_DOMAIN}/e/${row.slug}`}><IconExternalLink /> Ver Site</Button>
                         <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/empresas/${row.id}`}>Editar</Button>
                       </Group>
                     </Table.Td>
@@ -114,14 +107,21 @@ export default function Organizations() {
             </Table.Tbody>
           </Table>
         </ScrollArea>
-        <Center>
-          <Pagination total={data?.last_page} defaultValue={page} onChange={setPage} />
-        </Center>
+        {last_page > 1 && (
+          <Center>
+            <Pagination total={last_page || 0} defaultValue={page || 0} onChange={setPage} />
+          </Center>
+        )}
       </Stack>
-      
+
       <Modal opened={register} onClose={() => setRegister(false)} title="Cadastrar empresa" centered>
-        <FormOrganization.Basic mutate={mutate} />
+        <FormOrganization.Basic onClose={() => {
+          setRegister(false)
+          mutate()
+        }} />
       </Modal>
     </Container>
   )
 }
+
+export default guardAccount(Organizations)

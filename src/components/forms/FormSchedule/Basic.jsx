@@ -18,8 +18,6 @@ export default function Basic({ scheduleData, mutate }) {
 
   // Constants
   const editing = !!scheduleData
-  const { permissions } = permissionsData || {}
-  const adminAccess = !!permissions?.find(perm => perm === 's' || perm === 'a') || false
 
   // States
   const [error, setError] = useState(null)
@@ -89,7 +87,7 @@ export default function Basic({ scheduleData, mutate }) {
         <Grid.Col span={editing ? { base: 12, lg: 6 } : { base: 12 }}>
           <Stack>
             <Grid>
-              {adminAccess && <Grid.Col span={{ base: 12 }}>
+              {permissionsData?.sa && <Grid.Col span={{ base: 12 }}>
                 <Fields.OrganizationField
                   inputProps={{
                     ...form.getInputProps('organizationId'),

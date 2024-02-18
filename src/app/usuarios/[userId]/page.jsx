@@ -20,7 +20,7 @@ export default function User() {
   const router = useRouter()
 
   // Constants
-  const allowed = permissionsData?.permissions
+  const allowed = permissionsData?.sa
 
   // States
   const [tab, setTab] = useState('profile')

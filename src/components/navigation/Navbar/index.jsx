@@ -14,24 +14,19 @@ export default function Navbar() {
   const pathname = usePathname()
 
   // Constants
-  const { permissions } = permissionsData || {}
-  const adminAccess = !!permissions?.find(perm => perm === 's' || perm === 'a') || false
-  const gerenteAccess = !!permissions?.find(perm => perm === 'g') || false
-  const funcionarioAccess = !!permissions?.find(perm => perm === 'f') || false
-
   const menu = [
-    { link: `/agendamentos/${userData?.id}`, label: 'Agendamentos', icon: IconUser, visible: funcionarioAccess },
-    { link: `/usuarios/${userData?.id}`, label: 'Perfil', icon: IconUser, visible: funcionarioAccess },
-    { link: `/agendamentos`, label: 'Agendamentos', icon: IconCalendar, visible: adminAccess },
-    { link: '/empresas', label: 'Empresas', icon: IconBuilding, visible: adminAccess },
-    { link: '/categorias', label: 'Categorias', icon: IconCategory, visible: adminAccess || gerenteAccess },
-    { link: '/servicos', label: 'Serviços', icon: IconChisel, visible: adminAccess || gerenteAccess },
-    { link: '/funcionarios', label: 'Funcionários', icon: IconTools, visible: adminAccess || gerenteAccess },
-    { link: '/unidades', label: 'Unidades', icon: IconBuildingStore, visible: adminAccess || gerenteAccess },
-    { link: '/clientes', label: 'Clientes', icon: IconUsers, visible: adminAccess },
-    { link: '/usuarios', label: 'Usuários', icon: IconUserSquare, visible: adminAccess || gerenteAccess },
-    // { link: '/eventos', label: 'Eventos', icon: IconTimelineEventExclamation, visible: adminAccess },
-    // { link: '/relatorios', label: 'Relatórios', icon: IconGraph, visible: adminAccess },
+    { link: `/agendamentos/${userData?.id}`, label: 'Agendamentos', icon: IconUser, visible: permissionsData?.ge },
+    { link: `/usuarios/${userData?.id}`, label: 'Perfil', icon: IconUser, visible: permissionsData?.ge },
+    { link: `/agendamentos`, label: 'Agendamentos', icon: IconCalendar, visible: permissionsData?.sa },
+    { link: '/empresas', label: 'Empresas', icon: IconBuilding, visible: permissionsData?.sa },
+    { link: '/categorias', label: 'Categorias', icon: IconCategory, visible: permissionsData?.sag },
+    { link: '/servicos', label: 'Serviços', icon: IconChisel, visible: permissionsData?.sag },
+    { link: '/funcionarios', label: 'Funcionários', icon: IconTools, visible: permissionsData?.sag },
+    { link: '/unidades', label: 'Unidades', icon: IconBuildingStore, visible: permissionsData?.sag },
+    { link: '/clientes', label: 'Clientes', icon: IconUsers, visible: permissionsData?.sa },
+    { link: '/usuarios', label: 'Usuários', icon: IconUserSquare, visible: permissionsData?.sag },
+    // { link: '/eventos', label: 'Eventos', icon: IconTimelineEventExclamation, visible: permissionsData?.sa },
+    // { link: '/relatorios', label: 'Relatórios', icon: IconGraph, visible: permissionsData?.sa },
   ].filter(item => item.visible)
   const menuItens = menu.map((item) => (
     <a
@@ -51,7 +46,7 @@ export default function Navbar() {
     <nav className={classes.navbar}>
       <div className={classes.navbarMain}>
         <Link href="/" className={classes.header} justify="space-between">
-          Agendle
+          Skedyou
         </Link>
         {isAuthenticated && menuItens}
       </div>

@@ -28,9 +28,17 @@ function useProvideAuth() {
     !!isAuthenticated ? '/admin/me/' : null
   ])
 
-  const { data: permissionsData, isValidating: permissionsIsValidating } = useFetch([
-    !!isAuthenticated ? '/admin/permissions/' : null
-  ])
+  const permissionsData = userData?.data?.type ? {
+    s: userData.data.type === 's' || false,
+    a: userData.data.type === 'a' || false,
+    g: userData.data.type === 'g' || false,
+    e: userData.data.type === 'f' || false,
+    sa: ['s', 'a'].indexOf(userData.data.type) !== -1 || false,
+    sag: ['s', 'a', 'g'].indexOf(userData.data.type) !== -1 || false,
+    sage: ['s', 'a', 'g', 'f'].indexOf(userData.data.type) !== -1 || false,
+    ag: ['a', 'g'].indexOf(userData.data.type) !== -1 || false,
+    ge: ['g', 'f'].indexOf(userData.data.type) !== -1 || false,
+  } : null
 
   // Login with credentials
   const login = async (credentials) => {
@@ -68,7 +76,7 @@ function useProvideAuth() {
   // Logout user from API
   const logout = async () => {
     try {
-      await api.post('/admin/authentication/logout/')
+      await api.post('/admin/logout/')
     } finally {
       removeCookie(cookieTokenString)
       setIsAuthenticated(false)
@@ -77,13 +85,13 @@ function useProvideAuth() {
 
   // Send reset password link
   const forgotPassword = async (email) => {
-    const response = await api.post('/password-reset/', { email })
+    const response = await api.post('/admin/password-reset/', { email })
     return response
   }
 
   // Reset password
   const resetPassword = async (password, uidb64, hash) => {
-    const response = await api.post('/password-reset/confirm/', {
+    const response = await api.post('/admin/password-reset/confirm/', {
       password,
       uidb64,
       token: hash
@@ -133,7 +141,7 @@ function useProvideAuth() {
     isAuthenticated,
     isValidating,
     userData: userData?.data || null,
-    permissionsData: { permissions: [userData?.data?.type] } || null
+    permissionsData
   }
 }
 
