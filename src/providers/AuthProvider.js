@@ -28,9 +28,9 @@ function useProvideAuth() {
     !!isAuthenticated ? '/admin/me/' : null
   ])
 
-  // const { data: permissionsData, isValidating: permissionsIsValidating } = useFetch([
-  //   !!isAuthenticated ? '/admin/permissions/' : null
-  // ])
+  const { data: permissionsData, isValidating: permissionsIsValidating } = useFetch([
+    !!isAuthenticated ? '/admin/permissions/' : null
+  ])
 
   // Login with credentials
   const login = async (credentials) => {
