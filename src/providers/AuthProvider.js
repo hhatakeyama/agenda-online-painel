@@ -15,7 +15,7 @@ function useProvideAuth() {
   const { cache } = useSWRConfig()
 
   // Constants
-  const cookieTokenString = 'agenda-online-painel-token'
+  const cookieTokenString = 'skedyou-admin-token'
   const { token: cookieToken, expiry: cookieExpiry } = getCookie(cookieTokenString) || {}
 
   // States
@@ -25,18 +25,18 @@ function useProvideAuth() {
 
   // // Fetch
   const { data: userData, isValidating: userIsValidating } = useFetch([
-    !!isAuthenticated ? '/painel/users/me/' : null
+    !!isAuthenticated ? '/admin/me/' : null
   ])
 
   // const { data: permissionsData, isValidating: permissionsIsValidating } = useFetch([
-  //   !!isAuthenticated ? '/permissions/' : null
+  //   !!isAuthenticated ? '/admin/permissions/' : null
   // ])
 
   // Login with credentials
   const login = async (credentials) => {
     setLoading(true)
     const response = await api
-      .post('/login/', {
+      .post('/admin/login/', {
         email: credentials.email,
         password: credentials.password
       })

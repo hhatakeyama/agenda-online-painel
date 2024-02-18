@@ -1,4 +1,4 @@
-const STORAGE_KEY = '@agenda-online-painel/'
+const STORAGE_KEY = '@skedyou-admin/'
 
 export const getStorage = (name, isString = false) => {
   if (typeof localStorage !== 'undefined') {

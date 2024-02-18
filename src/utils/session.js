@@ -1,4 +1,4 @@
-const SESSION_KEY = '@agenda-online-painel/'
+const SESSION_KEY = '@skedyou-admin/'
 
 export const removeSession = (name) => {
   if (typeof window !== 'undefined') {

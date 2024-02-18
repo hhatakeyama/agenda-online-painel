@@ -2,7 +2,7 @@ import axios from 'axios'
 
 import { getCookie, removeCookie } from '@/utils'
 
-const cookieTokenString = 'agenda-online-painel-token'
+const cookieTokenString = 'skedyou-admin-token'
 const api = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_ENTRYPOINT}`
 })
