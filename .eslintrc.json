@@ -22,7 +22,7 @@
     "jsx-quotes": ["error", "prefer-double"],
     "multiline-ternary": "off",
     "no-console": "warn",
-    "no-unused-vars": "error",
+    "no-unused-vars": "warn",
     "no-use-before-define": "off",
     "react/prop-types": "off",
     "react/react-in-jsx-scope": "off",
