@@ -1,7 +1,8 @@
-import { Alert, Button, Grid, Group, LoadingOverlay, Select, Stack, useMantineTheme } from '@mantine/core'
+import { Button, Grid, Group, LoadingOverlay, Select, Stack, useMantineTheme } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import { useParams } from 'next/navigation'
 import React, { useState } from 'react'
 import { useSWRConfig } from 'swr'
 
@@ -12,44 +13,44 @@ import errorHandler from '@/utils/errorHandler'
 
 import * as Fields from './Fields'
 
-export default function Basic({ userData }) {
+export default function Basic({ userData, onClose }) {
   // Hooks
   const theme = useMantineTheme()
-  const { mutate: mutateGlobal } = useSWRConfig()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
-  const { isAuthenticated, isValidating, permissionsData } = useAuth()
+  const { mutate: mutateGlobal } = useSWRConfig()
+  const { isValidating, permissionsData } = useAuth()
+  const { userId } = useParams()
 
   // Constants
   const tipos = [
     { value: 's', label: 'Superadmin', visible: permissionsData?.s },
     { value: 'a', label: 'Administrador', visible: permissionsData?.sa },
     { value: 'g', label: 'Gerente', visible: permissionsData?.sag },
-  ]
+  ].filter(item => item.visible)
   const editing = !!userData
 
   // States
-  const [error, setError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Form
   const initialValues = {
-    organization_id: userData?.organization_id?.toString?.() || 0,
+    organization_id: userData?.organization_id?.toString?.() || null,
     name: userData?.name || '',
     email: userData?.email || '',
     password: '',
     confirmPassword: '',
-    type: userData?.type || 'f',
-    status: userData?.status.toString() || '1',
+    type: userData?.type || 'g',
+    status: userData?.status?.toString?.() || '1',
   }
 
   const schema = Yup.object().shape({
-    organization_id: Yup.number().required(),
+    organization_id: Yup.number().nullable(),
     name: Yup.string().required(),
     email: Yup.string().email().required(),
     password: Yup.string().nullable(),
     confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Senhas diferentes'),
     type: Yup.string().required("Tipo obrigatório"),
-    status: Yup.string().nullable(),
+    status: Yup.number(),
   })
 
   // Mantine form
@@ -61,41 +62,47 @@ export default function Basic({ userData }) {
   })
 
   // Fetch
-  const { data } = useFetch([isAuthenticated ? `/painel/organizations/` : null])
-  const { data: { data: list = [] } } = data || { data: {} }
-  const organizationsOptions = list?.map(item => ({ label: item.registeredName, value: item.id.toString() }))
-  const optionsOrganizations = [{ label: 'Sem Empresa', value: '0' }, ...organizationsOptions]
+  const { data } = useFetch([permissionsData?.sa ? `/admin/organizations/` : null])
+  const { data: results = [] } = data?.data || {}
+  const optionsOrganizations =
+    results.map(organization => ({ label: organization.registeredName, value: organization.id.toString() })) || []
 
   // Actions
   const handleSubmit = async (newValues) => {
-    setError(null)
     setIsSubmitting(true)
-    const { password, confirmPassword, ...restValues } = newValues
-    return await api
-      [editing ? 'patch' : 'post'](`/painel/users/${editing ? `update/${userData?.id}` : 'create'}/`, {
-        ...restValues,
-        ...(password && password !== '' ? { password: password } : {}),
-        ...(confirmPassword ? { password_confirmed: confirmPassword } : {})
-      })
-      .then(() => {
-        notifications.show({
-          title: 'Sucesso',
-          message: 'Dados atualizados com sucesso!',
-          color: 'green'
+    if (form.isDirty()) {
+      const { password, confirmPassword, ...restValues } = newValues
+      return await api
+        [editing ? 'patch' : 'post'](`/admin/users${editing ? `/${userId}` : ''}/`, {
+          ...restValues,
+          ...(password && password !== '' ? { password: password } : {}),
+          ...(confirmPassword ? { password_confirmed: confirmPassword } : {})
         })
-        if (editing) mutateGlobal(`/painel/users/${userData.id}/`)
-        else window.location = '/usuarios'
-      })
-      .catch(error => {
-        notifications.show({
-          title: 'Erro',
-          message:
-            errorHandler(error.response.data.errors).messages ||
-            'Erro ao atualizar os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.',
-          color: 'red'
+        .then(() => {
+          if (editing) {
+            mutateGlobal(`/admin/users/${userId}/`)
+            form.resetTouched()
+            form.resetDirty()
+          } else {
+            onClose?.()
+          }
+          notifications.show({
+            title: 'Sucesso',
+            message: `Dados ${editing ? 'atualizados' : 'cadastrados'} com sucesso!`,
+            color: 'green'
+          })
         })
-      })
-      .finally(() => setIsSubmitting(false))
+        .catch(error => {
+          notifications.show({
+            title: 'Erro',
+            message:
+              errorHandler(error.response.data.errors).messages ||
+              `Erro ao ${editing ? 'atualizar' : 'cadastrar'} os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.`,
+            color: 'red'
+          })
+        })
+        .finally(() => setIsSubmitting(false))
+    }
   }
 
   return (
@@ -111,7 +118,7 @@ export default function Basic({ userData }) {
                     data: optionsOrganizations,
                     disabled: isSubmitting,
                     searchable: true,
-                    required: true,
+                    required: permissionsData?.g,
                     clearable: true,
                     ...form.getInputProps('organization_id')
                   }}
@@ -129,16 +136,18 @@ export default function Basic({ userData }) {
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.ConfirmPasswordField inputProps={{ ...form.getInputProps('confirmPassword'), disabled: isSubmitting }} />
               </Grid.Col>
-              <Grid.Col span={6}>
-                <Select
-                  required
-                  label="Tipo"
-                  placeholder="Tipo"
-                  data={tipos}
-                  disabled={isSubmitting}
-                  {...form.getInputProps('type')}
-                />
-              </Grid.Col>
+              {permissionsData?.sa && (
+                <Grid.Col span={6}>
+                  <Select
+                    required
+                    label="Tipo"
+                    placeholder="Tipo"
+                    data={tipos}
+                    disabled={isSubmitting}
+                    {...form.getInputProps('type')}
+                  />
+                </Grid.Col>
+              )}
               <Grid.Col span={6}>
                 <Select
                   label="Conta ativa?"
@@ -152,8 +161,6 @@ export default function Basic({ userData }) {
           </Stack>
         </Grid.Col>
       </Grid>
-
-      {!!error && <Alert color="red" title="Erro">{error}</Alert>}
 
       <Group mt="xl">
         <Button

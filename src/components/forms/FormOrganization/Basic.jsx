@@ -38,7 +38,7 @@ export default function Basic({ organizationData, onClose }) {
     registeredName: Yup.string().required(),
     tradingName: Yup.string().required(),
     cnpj: Yup.string().required(),
-    status: Yup.number().nullable(),
+    status: Yup.number(),
   })
 
   // Mantine form

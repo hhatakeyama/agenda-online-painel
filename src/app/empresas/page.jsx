@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Button, Center, Container, Group, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Stack, Table, Text, TextInput } from '@mantine/core'
+import { Button, Center, Container, Divider, Grid, Group, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Stack, Table, Text, TextInput } from '@mantine/core'
 import { IconExternalLink, IconSearch } from '@tabler/icons-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -43,28 +43,32 @@ function Organizations() {
 
   return (
     <Container size="100%" mb="50px">
-      <Stack>
+      <Stack mb="md">
         <Group justify="space-between">
           <Text>Empresas</Text>
 
           <Button onClick={() => setRegister(true)}>Adicionar Empresa</Button>
         </Group>
+        <Grid>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
+            <TextInput
+              placeholder="Buscar por razão social, nome fantasia ou cnpj"
+              leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
+              value={search}
+              onChange={event => setSearch(event.target.value)}
+              onBlur={event => setSearchFilter(event.target.value)}
+            />
+          </Grid.Col>
+        </Grid>
+        <Divider />
+      </Stack>
 
-        <Box pos="relative">
-          <LoadingOverlay
-            visible={loading}
-            zIndex={1000}
-            overlayProps={{ radius: 'sm', blur: 2 }}
-            loaderProps={{ color: 'pink', type: 'bars' }}
-          />
-        </Box>
-        <TextInput
-          placeholder="Buscar por razão social, nome fantasia ou cnpj"
-          mb="md"
-          leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
-          value={search}
-          onChange={event => setSearch(event.target.value)}
-          onBlur={event => setSearchFilter(event.target.value)}
+      <Stack pos="relative">
+        <LoadingOverlay
+          visible={loading}
+          zIndex={1000}
+          overlayProps={{ radius: 'sm', blur: 2 }}
+          loaderProps={{ type: 'bars' }}
         />
         <ScrollArea h={results.length > 15 ? "55vh" : "auto"} offsetScrollbars>
           <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
@@ -75,7 +79,7 @@ function Organizations() {
                 <Th>CNPJ</Th>
                 <Th>Ativo</Th>
                 <Th>Data Cadastro</Th>
-                <Th>Ações</Th>
+                <Th><Text inherit ta="right">Ações</Text></Th>
               </Table.Tr>
             </Table.Tbody>
             <Table.Tbody>
@@ -88,7 +92,7 @@ function Organizations() {
                     <Table.Td className={classes.td}><Display.Status status={row.status} /></Table.Td>
                     <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : '--'}</Table.Td>
                     <Table.Td className={classes.td}>
-                      <Group gap="xs">
+                      <Group gap="xs" justify="flex-end">
                         <Button size="compact-sm" component="a" color="blue" title="Ver Site" href={`${process.env.NEXT_PUBLIC_SITE_DOMAIN}/e/${row.slug}`}><IconExternalLink /> Ver Site</Button>
                         <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/empresas/${row.id}`}>Editar</Button>
                       </Group>

@@ -1,32 +1,29 @@
 'use client'
 
-import { Center, Container, Group, Loader, Stack, Tabs, Text } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
+import { Container, Group, Stack, Tabs, Text } from '@mantine/core'
 import { IconAt, IconUser } from '@tabler/icons-react'
 import { useParams, useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import * as Display from '@/components/display'
 import { FormUser } from '@/components/forms'
+import guardAccount from '@/guards/AccountGuard'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 
 import classes from './User.module.css'
 
-export default function User() {
+function User() {
   // Hooks
   const { isAuthenticated, permissionsData } = useAuth()
   const { userId } = useParams()
   const router = useRouter()
 
-  // Constants
-  const allowed = permissionsData?.sa
-
   // States
   const [tab, setTab] = useState('profile')
 
   // Fetch
-  const { data, error } = useFetch([isAuthenticated && allowed ? `/painel/users/${userId}/` : null])
+  const { data, error } = useFetch([isAuthenticated ? `/admin/users/${userId}/` : null])
   const { data: userData } = data || {}
 
   // Constants
@@ -34,18 +31,9 @@ export default function User() {
     { id: 'profile', label: 'Perfil', icon: <IconUser style={{ height: 12, width: 12 }} /> },
   ]
 
-  // Effects
-  useEffect(() => {
-    if (isAuthenticated === false) return router.push('/')
-  }, [isAuthenticated, router])
+  // Validations
+  if ((isAuthenticated === true && permissionsData && !permissionsData.sag) || !!error) return router.push('/')
 
-  if (error?.response?.data?.message === "Unauthorized") {
-    notifications.show({ title: "Erro", message: error?.response?.data?.message, color: 'red' })
-    return router.push('/')
-  }
-
-  if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
-    
   return (
     <Container size="100%" mb="50px">
       <Stack>
@@ -82,3 +70,5 @@ export default function User() {
     </Container>
   )
 }
+
+export default guardAccount(User)

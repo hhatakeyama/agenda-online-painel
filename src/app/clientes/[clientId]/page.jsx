@@ -1,21 +1,21 @@
 'use client'
 
-import { Center, Container, Group, Loader, Stack, Tabs, Text } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
+import { Container, Group, Stack, Tabs, Text } from '@mantine/core'
 import { IconAt, IconUser } from '@tabler/icons-react'
 import { useParams, useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import * as Display from '@/components/display'
 import { FormClient } from '@/components/forms'
+import guardAccount from '@/guards/AccountGuard'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 
 import classes from './Client.module.css'
 
-export default function Client() {
+function Client() {
   // Hooks
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, permissionsData } = useAuth()
   const { clientId } = useParams()
   const router = useRouter()
 
@@ -23,7 +23,7 @@ export default function Client() {
   const [tab, setTab] = useState('profile')
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/painel/clients/${clientId}` : null])
+  const { data, error } = useFetch([isAuthenticated ? `/admin/clients/${clientId}/` : null])
   const { data: clientData } = data || {}
 
   // Constants
@@ -31,17 +31,8 @@ export default function Client() {
     { id: 'profile', label: 'Perfil', icon: <IconUser style={{ height: 12, width: 12 }} /> },
   ]
 
-  // Effects
-  useEffect(() => {
-    if (isAuthenticated === false) return router.push('/')
-  }, [isAuthenticated, router])
-
-  if (error?.response?.data?.message === "Unauthorized") {
-    notifications.show({ title: "Erro", message: error?.response?.data?.message, color: 'red' })
-    return router.push('/')
-  }
-
-  if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
+  // Validations
+  if ((isAuthenticated === true && permissionsData && !permissionsData.sa) || !!error) return router.push('/')
 
   return (
     <Container size="100%" mb="50px">
@@ -70,7 +61,7 @@ export default function Client() {
           <Tabs.Panel value="profile">
             {clientData && tab === 'profile' && (
               <Container size="100%" mb="xl" mt="xs">
-                <FormClient.Basic clientData={clientData} mutate={mutate} />
+                <FormClient.Basic clientData={clientData} />
               </Container>
             )}
           </Tabs.Panel>
@@ -79,3 +70,5 @@ export default function Client() {
     </Container>
   )
 }
+
+export default guardAccount(Client)

@@ -1,19 +1,20 @@
 'use client'
 
-import { Box, Button, Center, Container, Group, Loader, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Stack, Table, Text, TextInput } from '@mantine/core'
+import { Button, Center, Container, Divider, Grid, Group, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Select, Stack, Table, Text, TextInput } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import * as Display from '@/components/display'
 import { FormEmployee } from '@/components/forms'
+import guardAccount from '@/guards/AccountGuard'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { dateToHuman } from '@/utils'
 
 import classes from './Employees.module.css'
 
-export default function Employees() {
+function Employees() {
   // Hooks
   const router = useRouter()
   const { isAuthenticated, permissionsData } = useAuth()
@@ -21,12 +22,22 @@ export default function Employees() {
   // States
   const [search, setSearch] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
+  const [searchOrganization, setSearchOrganization] = useState('')
   const [page, setPage] = useState(1)
   const [register, setRegister] = useState(false)
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? '/admin/usuarios/' : null, { busca: searchFilter, page }])
+  const { data, error, mutate } = useFetch([
+    isAuthenticated ? '/admin/employees/' : null,
+    { search: searchFilter, page, ...(searchOrganization ? { organization_id: searchOrganization } : {}) }
+  ])
+  const { data: results = [], last_page } = data?.data || {}
   const loading = !data && !error
+
+  const { data: dataOrganizations } = useFetch([permissionsData?.sa ? `/admin/organizations/` : null])
+  const { data: resultsOrganizations = [] } = dataOrganizations?.data || {}
+  const optionsOrganizations =
+    resultsOrganizations.map(organization => ({ label: organization.registeredName, value: organization.id.toString() })) || []
 
   function Th({ children }) {
     return (
@@ -36,63 +47,73 @@ export default function Employees() {
     )
   }
 
-  // Effects
-  useEffect(() => {
-    if (isAuthenticated === false) return router.push('/accounts/login')
-  }, [isAuthenticated, router])
-
   // Validations
-  if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
-
-  if (isAuthenticated === true && permissionsData && !permissionsData.sa) return router.push('/')
+  if (isAuthenticated === true && permissionsData && !permissionsData.sag) return router.push('/')
 
   return (
     <Container size="100%" mb="50px">
-      <Stack>
+      <Stack mb="md">
         <Group justify="space-between">
           <Text>Funcionários</Text>
 
           <Button onClick={() => setRegister(true)}>Adicionar Funcionário</Button>
         </Group>
+        <Grid>
+          {permissionsData?.sa && (
+            <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+              <Select
+                placeholder="Empresa"
+                data={optionsOrganizations}
+                value={searchOrganization}
+                onChange={setSearchOrganization}
+                searchable
+                clearable
+              />
+            </Grid.Col>
+          )}
+          <Grid.Col span={{ base: 12, sm: 6 }}>
+            <TextInput
+              placeholder="Buscar por nome ou e-mail"
+              leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
+              value={search}
+              onChange={event => setSearch(event.target.value)}
+              onBlur={event => setSearchFilter(event.target.value)}
+            />
+          </Grid.Col>
+        </Grid>
+        <Divider />
+      </Stack>
 
-
-        <Box pos="relative">
-          <LoadingOverlay
-            visible={loading}
-            zIndex={1000}
-            overlayProps={{ radius: 'sm', blur: 2 }}
-            loaderProps={{ color: 'pink', type: 'bars' }}
-          />
-        </Box>
-        <TextInput
-          placeholder="Buscar por nome ou e-mail"
-          mb="md"
-          leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
-          value={search}
-          onChange={event => setSearch(event.target.value)}
-          onBlur={event => setSearchFilter(event.target.value)}
+      <Stack pos="relative">
+        <LoadingOverlay
+          visible={loading}
+          zIndex={1000}
+          overlayProps={{ radius: 'sm', blur: 2 }}
+          loaderProps={{ type: 'bars' }}
         />
-        <ScrollArea h={data?.data?.length > 15 ? "55vh" : "auto"} offsetScrollbars>
+        <ScrollArea h={results.length > 15 ? "55vh" : "auto"} offsetScrollbars>
           <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
             <Table.Tbody>
               <Table.Tr>
+                {permissionsData?.sa && <Th>Empresa</Th>}
                 <Th>Nome</Th>
                 <Th>E-mail</Th>
                 <Th>Ativo</Th>
                 <Th>Data Cadastro</Th>
-                <Th>Ações</Th>
+                <Th><Text inherit ta="right">Ações</Text></Th>
               </Table.Tr>
             </Table.Tbody>
             <Table.Tbody>
-              {data?.data?.length > 0 ? data?.data?.map((row) => {
+              {results.length > 0 ? results.map((row) => {
                 return (
                   <Table.Tr key={row.id} className={classes.tr}>
+                    {permissionsData?.sa && <Table.Td className={classes.td}>{row.organization?.tradingName || '--'}</Table.Td>}
                     <Table.Td className={classes.td}>{row.name}</Table.Td>
                     <Table.Td className={classes.td}>{row.email}</Table.Td>
                     <Table.Td className={classes.td}><Display.Status status={row.status} /></Table.Td>
-                    <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
+                    <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : '--'}</Table.Td>
                     <Table.Td className={classes.td}>
-                      <Group gap="xs">
+                      <Group gap="xs" justify="flex-end">
                         <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/funcionarios/${row.id}`}>Editar</Button>
                       </Group>
                     </Table.Td>
@@ -100,7 +121,7 @@ export default function Employees() {
                 )
               }) : (
                 <Table.Tr>
-                  <Table.Td colSpan={5}>
+                  <Table.Td colSpan={permissionsData?.sa ? 6 : 5}>
                     <Text fw={500} ta="center">
                       Nenhum funcionário encontrado
                     </Text>
@@ -110,14 +131,21 @@ export default function Employees() {
             </Table.Tbody>
           </Table>
         </ScrollArea>
-        <Center>
-          <Pagination total={data?.last_page} defaultValue={page} onChange={setPage} />
-        </Center>
+        {last_page > 1 && (
+          <Center>
+            <Pagination total={last_page} defaultValue={page} onChange={setPage} />
+          </Center>
+        )}
       </Stack>
       
       <Modal opened={register} onClose={() => setRegister(false)} title="Cadastrar funcionário" centered>
-        <FormEmployee.Basic mutate={mutate} />
+        <FormEmployee.Basic onClose={() => {
+          setRegister(false)
+          mutate()
+        }} />
       </Modal>
     </Container>
   )
 }
+
+export default guardAccount(Employees)

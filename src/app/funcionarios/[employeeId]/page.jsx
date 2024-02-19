@@ -1,21 +1,21 @@
 'use client'
 
-import { Center, Container, Group, Loader, Stack, Tabs, Text } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
-import { IconAt, IconUser } from '@tabler/icons-react'
+import { Container, Group, Stack, Tabs, Text } from '@mantine/core'
+import { IconAt, IconChisel, IconUser } from '@tabler/icons-react'
 import { useParams, useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import * as Display from '@/components/display'
 import { FormEmployee } from '@/components/forms'
+import guardAccount from '@/guards/AccountGuard'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 
 import classes from './Employee.module.css'
 
-export default function Employee() {
+function Employee() {
   // Hooks
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, permissionsData } = useAuth()
   const { employeeId } = useParams()
   const router = useRouter()
 
@@ -23,37 +23,30 @@ export default function Employee() {
   const [tab, setTab] = useState('profile')
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/usuarios/${employeeId}` : null])
+  const { data, error } = useFetch([isAuthenticated ? `/admin/employees/${employeeId}/` : null])
+  const { data: employeeData } = data || {}
 
   // Constants
   const tabs = [
     { id: 'profile', label: 'Perfil', icon: <IconUser style={{ height: 12, width: 12 }} /> },
+    { id: 'services', label: 'Serviços', icon: <IconChisel style={{ height: 12, width: 12 }} /> },
   ]
 
-  // Effects
-  useEffect(() => {
-    if (isAuthenticated === false) return router.push('/')
-  }, [isAuthenticated, router])
-
-  if (error?.response?.data?.message === "Unauthorized") {
-    notifications.show({ title: "Erro", message: error?.response?.data?.message, color: 'red' })
-    return router.push('/')
-  }
-
-  if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
+  // Validations
+  if ((isAuthenticated === true && permissionsData && !permissionsData.sag) || !!error) return router.push('/')
 
   return (
     <Container size="100%" mb="50px">
       <Stack>
         <Group wrap="nowrap">
           <div>
-            <Display.Status status={data?.status} />
+            <Display.Status status={employeeData?.status} />
             <Text fz="lg" fw={500} className={classes.profileName}>
-              {data?.name}
+              {employeeData?.name}
             </Text>
             <Group wrap="nowrap" gap={10} mt={3}>
               <IconAt stroke={1.5} size="1rem" className={classes.profileIcon} />
-              <Text fz="xs" c="dimmed">{data?.email}</Text>
+              <Text fz="xs" c="dimmed">{employeeData?.email}</Text>
             </Group>
           </div>
         </Group>
@@ -67,14 +60,21 @@ export default function Employee() {
             ))}
           </Tabs.List>
           <Tabs.Panel value="profile">
-            {data && tab === 'profile' && (
-              <Container size="100%" mb="xl" mt="xs">
-                <FormEmployee.Basic employeeData={data} mutate={mutate} />
-              </Container>
-            )}
+            <Container size="100%" mb="xl" mt="xs">
+              {employeeData && (
+                <FormEmployee.Basic employeeData={employeeData} />
+              )}
+            </Container>
+          </Tabs.Panel>
+          <Tabs.Panel value="services">
+            <Container size="100%" mb="xl" mt="xs">
+              services
+            </Container>
           </Tabs.Panel>
         </Tabs>
       </Stack>
     </Container>
   )
 }
+
+export default guardAccount(Employee)

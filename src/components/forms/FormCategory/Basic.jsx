@@ -1,39 +1,43 @@
-import { Alert, Button, Grid, Group, LoadingOverlay, Select, Stack, TextInput, useMantineTheme } from '@mantine/core'
+import { Button, Grid, Group, LoadingOverlay, Select, Stack, TextInput, useMantineTheme } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import { useParams } from 'next/navigation'
 import React, { useState } from 'react'
+import { useSWRConfig } from 'swr'
 
+import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { api, Yup } from '@/utils'
 import errorHandler from '@/utils/errorHandler'
 
 import * as Fields from './Fields'
 
-export default function Basic({ categoryData, mutate }) {
+export default function Basic({ categoryData, onClose }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
+  const { mutate: mutateGlobal } = useSWRConfig()
   const { isValidating, permissionsData } = useAuth()
+  const { categoryId } = useParams()
 
   // Constants
   const editing = !!categoryData
 
   // States
-  const [error, setError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Form
   const initialValues = {
-    organziationId: categoryData?.organziationId || null,
+    organization_id: categoryData?.organization_id?.toString?.() || null,
     name: categoryData?.name || '',
-    status: categoryData?.status || '1',
+    status: categoryData?.status?.toString?.() || '1',
   }
 
   const schema = Yup.object().shape({
-    organizationId: Yup.number().required(),
+    organization_id: Yup.number().required(),
     name: Yup.string().required(),
-    status: Yup.string().nullable(),
+    status: Yup.number(),
   })
 
   // Mantine form
@@ -45,21 +49,28 @@ export default function Basic({ categoryData, mutate }) {
   })
 
   // Fetch
-  const optionsOrganizations = [{ label: 'Empresa 1', value: '1' }]
+  const { data } = useFetch([permissionsData?.sa ? `/admin/organizations/` : null])
+  const { data: results = [] } = data?.data || {}
+  const optionsOrganizations =
+    results.map(organization => ({ label: organization.registeredName, value: organization.id.toString() })) || []
 
   // Actions
   const handleSubmit = async (newValues) => {
-    setError(null)
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        .patch(`/admin/usuarios/${categoryData?.id}/`, { ...newValues })
+        [editing ? 'patch' : 'post'](`/admin/service-categories${editing ? `/${categoryId}` : ''}/`, { ...newValues })
         .then(() => {
-          form.reset()
-          setTimeout(() => mutate(), 2000)
+          if (editing) {
+            mutateGlobal(`/admin/service-categories/${categoryId}/`)
+            form.resetTouched()
+            form.resetDirty()
+          } else {
+            onClose?.()
+          }
           notifications.show({
             title: 'Sucesso',
-            message: 'Dados atualizados com sucesso!',
+            message: `Dados ${editing ? 'atualizados' : 'cadastrados'} com sucesso!`,
             color: 'green'
           })
         })
@@ -68,7 +79,7 @@ export default function Basic({ categoryData, mutate }) {
             title: 'Erro',
             message:
               errorHandler(error.response.data.errors).messages ||
-              'Erro ao atualizar os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.',
+              `Erro ao ${editing ? 'atualizar' : 'cadastrar'} os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.`,
             color: 'red'
           })
         })
@@ -86,7 +97,7 @@ export default function Basic({ categoryData, mutate }) {
               {permissionsData?.sa && <Grid.Col span={{ base: 12 }}>
                 <Fields.OrganizationField
                   inputProps={{
-                    ...form.getInputProps('organizationId'),
+                    ...form.getInputProps('organization_id'),
                     data: optionsOrganizations,
                     disabled: isSubmitting,
                     searchable: true,
@@ -99,8 +110,8 @@ export default function Basic({ categoryData, mutate }) {
               </Grid.Col>
               <Grid.Col span={6}>
                 <Select
-                  label="Conta ativa?"
-                  placeholder="Conta ativa?"
+                  label="Categoria ativa?"
+                  placeholder="Categoria ativa?"
                   data={[{ value: '1', label: 'Sim' }, { value: '0', label: 'Não' }]}
                   disabled={isSubmitting}
                   {...form.getInputProps('status')}
@@ -110,8 +121,6 @@ export default function Basic({ categoryData, mutate }) {
           </Stack>
         </Grid.Col>
       </Grid>
-
-      {!!error && <Alert color="red" title="Erro">{error}</Alert>}
 
       <Group mt="xl">
         <Button

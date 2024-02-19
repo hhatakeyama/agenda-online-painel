@@ -1,18 +1,18 @@
 'use client'
 
-import { Button, Center, Container, Group, Loader, Stack, Tabs } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
-import { IconCategory } from '@tabler/icons-react'
+import { Alert, Button, Container, Group, Stack, Tabs, Text } from '@mantine/core'
+import { IconCategory, IconInfoCircle } from '@tabler/icons-react'
 import { useParams, useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import { FormCategory } from '@/components/forms'
+import guardAccount from '@/guards/AccountGuard'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 
-export default function Category() {
+function Category() {
   // Hooks
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, permissionsData } = useAuth()
   const { categoryId } = useParams()
   const router = useRouter()
 
@@ -20,31 +20,25 @@ export default function Category() {
   const [tab, setTab] = useState('category')
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/usuarios/${categoryId}` : null])
+  const { data, error } = useFetch([isAuthenticated ? `/admin/service-categories/${categoryId}/` : null])
 
   // Constants
   const tabs = [
     { id: 'category', label: 'Categoria', icon: <IconCategory style={{ height: 12, width: 12 }} /> },
   ]
 
-  // Effects
-  useEffect(() => {
-    if (isAuthenticated === false) return router.push('/')
-  }, [isAuthenticated, router])
-
-  if (error?.response?.data?.message === "Unauthorized") {
-    notifications.show({ title: "Erro", message: error?.response?.data?.message, color: 'red' })
-    return router.push('/')
-  }
-
-  if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
+  // Validations
+  if (isAuthenticated === true && permissionsData && !permissionsData.sag) return router.push('/')
 
   return (
     <Container size="100%" mb="50px">
       <Stack>
         <Group justify="space-between">
+          <Text>Categoria {data?.data?.name || ''}</Text>
+
           <Button component="a" href="/categorias">Voltar</Button>
         </Group>
+
         <Tabs value={tab} onChange={setTab}>
           <Tabs.List>
             {tabs.map(item => (
@@ -54,14 +48,19 @@ export default function Category() {
             ))}
           </Tabs.List>
           <Tabs.Panel value="category">
-            {data && tab === 'category' && (
-              <Container size="100%" mb="xl" mt="xs">
-                <FormCategory.Basic categoryData={data} mutate={mutate} />
-              </Container>
-            )}
+            <Container size="100%" mb="xl" mt="xs">
+              {!!error && (
+                <Alert color="orange" icon={<IconInfoCircle />}>Categoria não encontrada</Alert>
+              )}
+              {data?.data && tab === 'category' && (
+                <FormCategory.Basic categoryData={data?.data} />
+              )}
+            </Container>
           </Tabs.Panel>
         </Tabs>
       </Stack>
     </Container>
   )
 }
+
+export default guardAccount(Category)
