@@ -2,7 +2,7 @@
 
 import { Center, Loader } from "@mantine/core"
 import { redirect, usePathname, useSearchParams } from "next/navigation"
-import { useLayoutEffect } from "react"
+import { useEffect } from "react"
 
 import { useAuth } from "@/providers/AuthProvider"
 
@@ -19,12 +19,12 @@ export default function guardAccount(Component) {
     const redirectCallback = search.get('redirectCallback')
 
     // Effects
-    useLayoutEffect(() => {
+    useEffect(() => {
       if (publicRoutes.indexOf(pathname) === -1 && isValidating === false && isAuthenticated === false)
         redirect(`/accounts/login?redirectCallback=${pathname}`)
     }, [isAuthenticated, isValidating, pathname])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
       if (publicRoutes.indexOf(pathname) !== -1 && isAuthenticated === true) {
         if (redirectCallback) redirect(redirectCallback)
         redirect('/')
