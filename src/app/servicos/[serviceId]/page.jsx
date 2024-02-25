@@ -2,7 +2,7 @@
 
 import { Alert, Button, Container, Group, Stack, Tabs, Text } from '@mantine/core'
 import { IconInfoCircle, IconUser } from '@tabler/icons-react'
-import { useParams, useRouter } from 'next/navigation'
+import { redirect, useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
 import { FormService } from '@/components/forms'
@@ -14,7 +14,6 @@ function Service() {
   // Hooks
   const { isAuthenticated, permissionsData } = useAuth()
   const { serviceId } = useParams()
-  const router = useRouter()
 
   // States
   const [tab, setTab] = useState('service')
@@ -28,7 +27,7 @@ function Service() {
   ]
 
   // Validations
-  if (isAuthenticated === true && permissionsData && !permissionsData.sag) return router.push('/')
+  if (isAuthenticated === true && permissionsData && !permissionsData.sag) return redirect('/')
 
   return (
     <Container size="100%" mb="50px">

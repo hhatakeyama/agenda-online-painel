@@ -15,8 +15,8 @@ export default function Navbar() {
 
   // Constants
   const menu = [
-    { link: `/agendamentos/${userData?.id}`, label: 'Agendamentos', icon: IconUser, visible: permissionsData?.ge },
-    { link: `/usuarios/${userData?.id}`, label: 'Perfil', icon: IconUser, visible: permissionsData?.ge },
+    { link: `/agendamentos/calendario`, label: 'Agendamentos', icon: IconCalendar, visible: permissionsData?.ge },
+    { link: `/accounts/perfil`, label: 'Perfil', icon: IconUser, visible: permissionsData?.ge },
     { link: `/agendamentos`, label: 'Agendamentos', icon: IconCalendar, visible: permissionsData?.sa },
     { link: '/empresas', label: 'Empresas', icon: IconBuilding, visible: permissionsData?.sa },
     { link: '/categorias', label: 'Categorias', icon: IconCategory, visible: permissionsData?.sag },
@@ -45,7 +45,7 @@ export default function Navbar() {
   return (
     <nav className={classes.navbar}>
       <div className={classes.navbarMain}>
-        <Link href="/" className={classes.header} justify="space-between">
+        <Link href="/" className={classes.header} justify="space-between" style={{ color: '#FFFFFF', textDecoration: 'none' }}>
           Skedyou
         </Link>
         {isAuthenticated && menuItens}

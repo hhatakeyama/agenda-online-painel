@@ -2,12 +2,6 @@
   padding: 5px;
 }
 
-.tr {
-  @mixin hover {
-    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
-  }
-}
-
 .td {
   padding: 5px;
 }

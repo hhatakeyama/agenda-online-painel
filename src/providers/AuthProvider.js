@@ -24,9 +24,9 @@ function useProvideAuth() {
   const [isValidating, setIsValidating] = useState(null)
 
   // // Fetch
-  const { data: userData, isValidating: userIsValidating } = useFetch([
+  const { data: userData, isValidating: userIsValidating, mutate: userMutate } = useFetch([
     !!isAuthenticated ? '/admin/me/' : null
-  ])
+  ], { revalidateOnFocus: false, dedupingInterval: 60 * 60 * 24 })
 
   const permissionsData = userData?.data?.type ? {
     s: userData.data.type === 's' || false,
@@ -41,7 +41,7 @@ function useProvideAuth() {
   } : null
 
   // Login with credentials
-  const login = async (credentials) => {
+  const login = async credentials => {
     setLoading(true)
     const response = await api
       .post('/admin/login/', {
@@ -141,6 +141,7 @@ function useProvideAuth() {
     isAuthenticated,
     isValidating,
     userData: userData?.data || null,
+    userMutate,
     permissionsData
   }
 }

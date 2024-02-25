@@ -7,8 +7,8 @@ import { useAuth } from '@/providers/AuthProvider'
 import classes from './Footer.module.css'
 
 const links = [
-  { link: '#', label: 'Contact' },
-  { link: '#', label: 'Privacy' },
+  { link: '#', label: 'Contato' },
+  { link: '#', label: 'Política de Privacidade' },
 ]
 
 export default function Footer() {

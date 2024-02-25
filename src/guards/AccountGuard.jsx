@@ -2,9 +2,11 @@
 
 import { Center, Loader } from "@mantine/core"
 import { redirect, usePathname, useSearchParams } from "next/navigation"
-import { useLayoutEffect, useMemo } from "react"
+import { useLayoutEffect } from "react"
 
 import { useAuth } from "@/providers/AuthProvider"
+
+const publicRoutes = ['/accounts/login']
 
 export default function guardAccount(Component) {
   return function IsAuth(props) {
@@ -15,20 +17,19 @@ export default function guardAccount(Component) {
 
     // Constants
     const redirectCallback = search.get('redirectCallback')
-    const publicRoutes = useMemo(() => ['/accounts/login'], [])
 
     // Effects
     useLayoutEffect(() => {
       if (publicRoutes.indexOf(pathname) === -1 && isValidating === false && isAuthenticated === false)
         redirect(`/accounts/login?redirectCallback=${pathname}`)
-    }, [isAuthenticated, isValidating, pathname, publicRoutes])
+    }, [isAuthenticated, isValidating, pathname])
 
     useLayoutEffect(() => {
       if (publicRoutes.indexOf(pathname) !== -1 && isAuthenticated === true) {
         if (redirectCallback) redirect(redirectCallback)
         redirect('/')
       }
-    }, [isAuthenticated, pathname, publicRoutes, redirectCallback, search])
+    }, [isAuthenticated, pathname, redirectCallback, search])
   
     if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
 

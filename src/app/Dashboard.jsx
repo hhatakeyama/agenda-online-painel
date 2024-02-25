@@ -2,7 +2,9 @@
 
 import { Box, Group, Paper, RingProgress, SimpleGrid, Text } from '@mantine/core'
 
-export default function Dashboard({ dashboardData }) {
+import guardAccount from '@/guards/AccountGuard'
+
+function Dashboard({ dashboardData }) {
   // Constants
   const { ativas, expirando, inativas } = dashboardData || {}
   const total = ativas + expirando + inativas
@@ -40,3 +42,5 @@ export default function Dashboard({ dashboardData }) {
     </SimpleGrid>
   )
 }
+
+export default guardAccount(Dashboard)

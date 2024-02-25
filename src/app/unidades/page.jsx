@@ -2,7 +2,7 @@
 
 import { Button, Center, Container, Divider, Grid, Group, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Select, Stack, Table, Text, TextInput } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
-import { useRouter } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { useState } from 'react'
 
 import * as Display from '@/components/display'
@@ -16,7 +16,6 @@ import classes from './Companies.module.css'
 
 function Companies() {
   // Hooks
-  const router = useRouter()
   const { isAuthenticated, permissionsData } = useAuth()
 
   // States
@@ -48,7 +47,7 @@ function Companies() {
   }
 
   // Validations
-  if (isAuthenticated === true && permissionsData && !permissionsData.sag) return router.push('/')
+  if (isAuthenticated === true && permissionsData && !permissionsData.sag) return redirect('/')
 
   return (
     <Container size="100%" mb="50px" pos="relative">
@@ -92,7 +91,7 @@ function Companies() {
           loaderProps={{ type: 'bars' }}
         />
         <ScrollArea h={results?.length > 15 ? "55vh" : "auto"} offsetScrollbars>
-          <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
+          <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700} highlightOnHover>
             <Table.Tbody>
               <Table.Tr>
                 {permissionsData?.sa && <Th>Empresa</Th>}
@@ -107,7 +106,7 @@ function Companies() {
             <Table.Tbody>
               {results?.length > 0 ? results?.map((row) => {
                 return (
-                  <Table.Tr key={row.id} className={classes.tr}>
+                  <Table.Tr key={row.id}>
                     {permissionsData?.sa && <Table.Td className={classes.td}>{row.organization?.tradingName}</Table.Td>}
                     <Table.Td className={classes.td}>{row.name}</Table.Td>
                     <Table.Td className={classes.td}>{row.company_employees.length}</Table.Td>

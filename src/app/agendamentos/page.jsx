@@ -1,21 +1,21 @@
 'use client'
 
-import { Box, Button, Center, Container, Group, Loader, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Stack, Table, Text, TextInput } from '@mantine/core'
+import { Box, Button, Center, Container, Group, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Stack, Table, Text, TextInput } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { redirect } from 'next/navigation'
+import { Fragment, useState } from 'react'
 
 import * as Display from '@/components/display'
 import { FormSchedule } from '@/components/forms'
+import guardAccount from '@/guards/AccountGuard'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { dateToHuman } from '@/utils'
 
 import classes from './Agendamentos.module.css'
 
-export default function Agendamentos() {
+function Agendamentos() {
   // Hooks
-  const router = useRouter()
   const { isAuthenticated, permissionsData } = useAuth()
 
   // States
@@ -25,7 +25,8 @@ export default function Agendamentos() {
   const [register, setRegister] = useState(false)
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? '/admin/usuarios/' : null, { busca: searchFilter, page }])
+  const { data, error, mutate } = useFetch([isAuthenticated && permissionsData?.sa ? '/admin/schedules/' : null, { search: searchFilter, page }])
+  const { data: results = [], last_page } = data?.data || {}
   const loading = !data && !error
 
   function Th({ children }) {
@@ -36,15 +37,8 @@ export default function Agendamentos() {
     )
   }
 
-  // Effects
-  useEffect(() => {
-    if (isAuthenticated === false) return router.push('/accounts/login')
-  }, [isAuthenticated, router])
-
   // Validations
-  if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
-
-  if (isAuthenticated === true && permissionsData && !permissionsData.sa) return router.push('/')
+  if (isAuthenticated === true && permissionsData && !permissionsData.sa) return redirect('/agendamentos/calendario')
 
   return (
     <Container size="100%" mb="50px">
@@ -71,39 +65,52 @@ export default function Agendamentos() {
           onChange={event => setSearch(event.target.value)}
           onBlur={event => setSearchFilter(event.target.value)}
         />
-        <ScrollArea h={data?.data?.length > 15 ? "55vh" : "auto"} offsetScrollbars>
-          <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
+        <ScrollArea h={results.length > 15 ? "55vh" : "auto"} offsetScrollbars>
+          <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700} highlightOnHover>
             <Table.Tbody>
               <Table.Tr>
                 <Th>Cliente</Th>
                 <Th>Agendamento</Th>
-                <Th>Funcionário</Th>
+                <Th>Serviço</Th>
                 <Th>Confirmado?</Th>
+                <Th>Cancelado?</Th>
+                <Th>Realizado?</Th>
                 <Th>Data Cadastro</Th>
                 <Th>Ações</Th>
               </Table.Tr>
             </Table.Tbody>
             <Table.Tbody>
-              {data?.data?.length > 0 ? data?.data?.map((row) => {
+              {results.length > 0 ? results.map((row) => {
                 return (
-                  <Table.Tr key={row.id} className={classes.tr}>
-                    <Table.Td className={classes.td}>{row.name}</Table.Td>
-                    <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
-                    <Table.Td className={classes.td}>{row.name}</Table.Td>
-                    <Table.Td className={classes.td}><Display.Status status={row.status} /></Table.Td>
+                  <Table.Tr key={row.id}>
+                    <Table.Td className={classes.td}>
+                      {row.client?.name}<br />
+                      {row.client?.mobilePhone ? <a href={`tel:${row.client?.mobilePhone}`}>{row.client?.mobilePhone}</a> : ''}
+                    </Table.Td>
+                    <Table.Td className={classes.td}>{row.date ? dateToHuman(`${row.date}T03:00:00.000Z`, 'date') : ''}</Table.Td>
+                    <Table.Td className={classes.td}>
+                      {row.schedule_items?.map((scheduleItem, index) => (
+                        <Fragment key={scheduleItem.id}>
+                          - {scheduleItem.service.name} ({scheduleItem.employee.name}){index < row.schedule_items.length - 1 ? <br /> : ""}
+                        </Fragment>
+                      ))}
+                    </Table.Td>
+                    <Table.Td className={classes.td}><Display.Status status={row.confirmed} labels={['Sim', 'Não']} /></Table.Td>
+                    <Table.Td className={classes.td}><Display.Status status={row.canceled} labels={['Sim', 'Não']} /></Table.Td>
+                    <Table.Td className={classes.td}><Display.Status status={row.done} labels={['Sim', 'Não']} /></Table.Td>
                     <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
                     <Table.Td className={classes.td}>
                       <Group gap="xs">
-                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/empresas/${row.id}`}>Editar</Button>
+                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/agendamentos/${row.id}`}>Editar</Button>
                       </Group>
                     </Table.Td>
                   </Table.Tr>
                 )
               }) : (
                 <Table.Tr>
-                  <Table.Td colSpan={6}>
+                  <Table.Td colSpan={8}>
                     <Text fw={500} ta="center">
-                      Nenhuma agenda encontrada
+                      Nenhum agendamento encontrado
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -111,9 +118,11 @@ export default function Agendamentos() {
             </Table.Tbody>
           </Table>
         </ScrollArea>
-        <Center>
-          <Pagination total={data?.last_page} defaultValue={page} onChange={setPage} />
-        </Center>
+        {last_page > 1 && (
+          <Center>
+            <Pagination total={last_page} defaultValue={page} onChange={setPage} />
+          </Center>
+        )}
       </Stack>
 
       <Modal opened={register} onClose={() => setRegister(false)} title="Agendar" centered>
@@ -122,3 +131,5 @@ export default function Agendamentos() {
     </Container>
   )
 }
+
+export default guardAccount(Agendamentos)

@@ -2,7 +2,7 @@
 
 import { Button, Container, Group, Stack, Tabs, Text } from '@mantine/core'
 import { IconBuilding } from '@tabler/icons-react'
-import { useParams, useRouter } from 'next/navigation'
+import { redirect, useParams } from 'next/navigation'
 import React, {  useState } from 'react'
 
 import { FormOrganization } from '@/components/forms'
@@ -14,7 +14,6 @@ function Organization() {
   // Hooks
   const { isAuthenticated, permissionsData } = useAuth()
   const { organizationId } = useParams()
-  const router = useRouter()
 
   // States
   const [tab, setTab] = useState('organization')
@@ -28,7 +27,7 @@ function Organization() {
   ]
 
   // Validations
-  if (isAuthenticated === true && permissionsData && !permissionsData.sa) return router.push('/')
+  if (isAuthenticated === true && permissionsData && !permissionsData.sa) return redirect('/')
 
   return (
     <Container size="100%" mb="50px">

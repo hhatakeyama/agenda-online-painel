@@ -2,7 +2,7 @@
 
 import { Container, Group, Stack, Tabs, Text } from '@mantine/core'
 import { IconAt, IconUser } from '@tabler/icons-react'
-import { useParams, useRouter } from 'next/navigation'
+import { redirect, useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
 import * as Display from '@/components/display'
@@ -17,7 +17,6 @@ function User() {
   // Hooks
   const { isAuthenticated, permissionsData } = useAuth()
   const { userId } = useParams()
-  const router = useRouter()
 
   // States
   const [tab, setTab] = useState('profile')
@@ -32,7 +31,7 @@ function User() {
   ]
 
   // Validations
-  if ((isAuthenticated === true && permissionsData && !permissionsData.sag) || !!error) return router.push('/')
+  if ((isAuthenticated === true && permissionsData && !permissionsData.sag) || !!error) return redirect('/')
 
   return (
     <Container size="100%" mb="50px">

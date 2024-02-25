@@ -2,7 +2,7 @@
 
 import { Alert, Button, Container, Group, Stack, Tabs, Text } from '@mantine/core'
 import { IconCategory, IconInfoCircle } from '@tabler/icons-react'
-import { useParams, useRouter } from 'next/navigation'
+import { redirect, useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
 import { FormCategory } from '@/components/forms'
@@ -14,7 +14,6 @@ function Category() {
   // Hooks
   const { isAuthenticated, permissionsData } = useAuth()
   const { categoryId } = useParams()
-  const router = useRouter()
 
   // States
   const [tab, setTab] = useState('category')
@@ -28,7 +27,7 @@ function Category() {
   ]
 
   // Validations
-  if (isAuthenticated === true && permissionsData && !permissionsData.sag) return router.push('/')
+  if (isAuthenticated === true && permissionsData && !permissionsData.sag) return redirect('/')
 
   return (
     <Container size="100%" mb="50px">

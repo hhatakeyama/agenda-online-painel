@@ -2,7 +2,7 @@
 
 import { Box, Center, Container, Grid, Loader, LoadingOverlay, Pagination, rem, ScrollArea, Select, Stack, Table, Text, TextInput } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
-import { useRouter } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { useFetch } from '@/hooks'
@@ -13,7 +13,6 @@ import classes from './Eventos.module.css'
 
 export default function Eventos() {
   // Hooks
-  const router = useRouter()
   const { isAuthenticated, permissionsData } = useAuth()
 
   // States
@@ -36,13 +35,13 @@ export default function Eventos() {
 
   // Effects
   useEffect(() => {
-    if (isAuthenticated === false) return router.push('/accounts/login')
-  }, [isAuthenticated, router])
+    if (isAuthenticated === false) return redirect('/accounts/login')
+  }, [isAuthenticated])
 
   // Validations
   if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
 
-  if (isAuthenticated === true && permissionsData && !permissionsData.sa) return router.push('/')
+  if (isAuthenticated === true && permissionsData && !permissionsData.sa) return redirect('/')
 
   return (
     <Container size="100%" mb="50px">
@@ -77,7 +76,7 @@ export default function Eventos() {
               />
             </Grid.Col>
           </Grid>
-          <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700}>
+          <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700} highlightOnHover>
             <Table.Tbody>
               <Table.Tr>
                 <Th>ID</Th>
@@ -90,7 +89,7 @@ export default function Eventos() {
             <Table.Tbody>
               {data?.data?.length > 0 ? data?.data?.map((row) => {
                 return (
-                  <Table.Tr key={row.id} className={classes.tr}>
+                  <Table.Tr key={row.id}>
                     <Table.Td className={classes.td}>{row.id}</Table.Td>
                     <Table.Td className={classes.td}>
                       <Box display="flex" style={{ alignItems: 'center', gap: '5px' }}>

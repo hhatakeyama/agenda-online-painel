@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, Center, Container, Group, Loader, Stack, Text } from '@mantine/core'
-import { useRouter } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { useEffect } from 'react'
 
 // import { useFetch } from '@/hooks'
@@ -11,7 +11,6 @@ import { useAuth } from '@/providers/AuthProvider'
 
 export default function Home() {
   // Hooks
-  const router = useRouter()
   const { isAuthenticated, permissionsData, userData } = useAuth()
 
   // Fetch
@@ -20,8 +19,8 @@ export default function Home() {
 
   // Effects
   useEffect(() => {
-    if (isAuthenticated === false) return router.push('/accounts/login')
-  }, [isAuthenticated, router])
+    if (isAuthenticated === false) return redirect('/accounts/login')
+  }, [isAuthenticated])
 
   if (isAuthenticated === null) return <Center style={{ height: '400px' }}><Loader color="blue" /></Center>
 

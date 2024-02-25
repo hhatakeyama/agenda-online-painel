@@ -18,7 +18,7 @@ export default function Basic({ userData, onClose }) {
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
   const { mutate: mutateGlobal } = useSWRConfig()
-  const { isValidating, permissionsData } = useAuth()
+  const { isValidating, permissionsData, userMutate } = useAuth()
   const { userId } = useParams()
 
   // Constants
@@ -73,7 +73,7 @@ export default function Basic({ userData, onClose }) {
     if (form.isDirty()) {
       const { password, confirmPassword, ...restValues } = newValues
       return await api
-        [editing ? 'patch' : 'post'](`/admin/users${editing ? `/${userId}` : ''}/`, {
+        [editing ? 'patch' : 'post'](`/admin/users${editing ? `/${permissionsData?.ge ? userData?.id : userId}` : ''}/`, {
           ...restValues,
           ...(password && password !== '' ? { password: password } : {}),
           ...(confirmPassword ? { password_confirmed: confirmPassword } : {})
@@ -83,6 +83,7 @@ export default function Basic({ userData, onClose }) {
             mutateGlobal(`/admin/users/${userId}/`)
             form.resetTouched()
             form.resetDirty()
+            if (permissionsData?.ge) userMutate?.()
           } else {
             onClose?.()
           }
@@ -128,7 +129,7 @@ export default function Basic({ userData, onClose }) {
                 <Fields.NameField inputProps={{ ...form.getInputProps('name'), required: true, disabled: isSubmitting }} />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.EmailField inputProps={{ ...form.getInputProps('email'), required: true, disabled: isSubmitting }} />
+                <Fields.EmailField inputProps={{ ...form.getInputProps('email'), required: true, disabled: permissionsData?.ge || isSubmitting }} />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.PasswordField inputProps={{ ...form.getInputProps('password'), disabled: isSubmitting }} />
@@ -148,15 +149,17 @@ export default function Basic({ userData, onClose }) {
                   />
                 </Grid.Col>
               )}
-              <Grid.Col span={6}>
-                <Select
-                  label="Conta ativa?"
-                  placeholder="Conta ativa?"
-                  data={[{ value: '1', label: 'Sim' }, { value: '0', label: 'Não' }]}
-                  disabled={isSubmitting}
-                  {...form.getInputProps('status')}
-                />
-              </Grid.Col>
+              {permissionsData.sa && (
+                <Grid.Col span={6}>
+                  <Select
+                    label="Conta ativa?"
+                    placeholder="Conta ativa?"
+                    data={[{ value: '1', label: 'Sim' }, { value: '0', label: 'Não' }]}
+                    disabled={isSubmitting}
+                    {...form.getInputProps('status')}
+                  />
+                </Grid.Col>
+              )}
             </Grid>
           </Stack>
         </Grid.Col>

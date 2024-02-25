@@ -2,49 +2,39 @@
 
 import { Container, Group, Stack, Tabs, Text } from '@mantine/core'
 import { IconAt, IconUser } from '@tabler/icons-react'
-import { redirect, useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
 import * as Display from '@/components/display'
-import { FormClient } from '@/components/forms'
+import { FormUser } from '@/components/forms'
 import guardAccount from '@/guards/AccountGuard'
-import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 
-import classes from './Client.module.css'
+import classes from './Profile.module.css'
 
-function Client() {
+function Profile() {
   // Hooks
-  const { isAuthenticated, permissionsData } = useAuth()
-  const { clientId } = useParams()
+  const { userData } = useAuth()
 
   // States
   const [tab, setTab] = useState('profile')
-
-  // Fetch
-  const { data, error } = useFetch([isAuthenticated ? `/admin/clients/${clientId}/` : null])
-  const { data: clientData } = data || {}
 
   // Constants
   const tabs = [
     { id: 'profile', label: 'Perfil', icon: <IconUser style={{ height: 12, width: 12 }} /> },
   ]
 
-  // Validations
-  if ((isAuthenticated === true && permissionsData && !permissionsData.sa) || !!error) return redirect('/')
-
   return (
     <Container size="100%" mb="50px">
       <Stack>
         <Group wrap="nowrap">
           <div>
-            <Display.Status status={clientData?.status} />
+            <Display.Status status={userData?.status} />
             <Text fz="lg" fw={500} className={classes.profileName}>
-              {clientData?.name}
+              {userData?.name}
             </Text>
             <Group wrap="nowrap" gap={10} mt={3}>
               <IconAt stroke={1.5} size="1rem" className={classes.profileIcon} />
-              <Text fz="xs" c="dimmed">{clientData?.email}</Text>
+              <Text fz="xs" c="dimmed">{userData?.email}</Text>
             </Group>
           </div>
         </Group>
@@ -58,9 +48,9 @@ function Client() {
             ))}
           </Tabs.List>
           <Tabs.Panel value="profile">
-            {clientData && tab === 'profile' && (
+            {userData && tab === 'profile' && (
               <Container size="100%" mb="xl" mt="xs">
-                <FormClient.Basic clientData={clientData} />
+                <FormUser.Basic userData={userData} />
               </Container>
             )}
           </Tabs.Panel>
@@ -70,4 +60,4 @@ function Client() {
   )
 }
 
-export default guardAccount(Client)
+export default guardAccount(Profile)
