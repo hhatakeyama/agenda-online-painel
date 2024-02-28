@@ -1,5 +1,6 @@
 'use client'
 
+import axios from 'axios'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { useSWRConfig } from 'swr'
 
@@ -40,13 +41,13 @@ function useProvideAuth() {
   // Login with credentials
   const login = async credentials => {
     setLoading(true)
+    await axios.get(`${process.env.NEXT_PUBLIC_API_DOMAIN}/sanctum/csrf-cookie`)
     const response = await api
       .post('/admin/login/', {
         email: credentials.email,
         password: credentials.password
       })
       .then(response => {
-        console.log(response)
         const { data } = response || {}
         if (data?.token) {
           const date = new Date()
@@ -59,7 +60,6 @@ function useProvideAuth() {
         }
       })
       .catch(error => {
-        console.log(error)
         return {
           error:
             error?.response?.data?.message === 'Unauthorized'
