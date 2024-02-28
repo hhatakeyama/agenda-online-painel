@@ -33,13 +33,13 @@ function Calendar() {
   const [register, setRegister] = useState(false)
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/companies/` : null, { organization_id: searchOrganization }])
+  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/companies` : null, { organization_id: searchOrganization }])
   const { data: resultsCompanies = [] } = data?.data || {}
   const optionsCompanies =
     resultsCompanies.map(company => ({ label: company.name, value: company.id.toString() })) || []
 
   const { data: dataSchedules, error: errorSchedules, mutate: mutateSchedules } = useFetch([
-    isAuthenticated ? '/admin/schedules/calendar/' : null,
+    isAuthenticated ? '/admin/schedules/calendar' : null,
     { search: searchFilter, date: dateToDatabase(date), ...(searchCompany ? { company: searchCompany } : {}) }
   ])
   const { data: results = [] } = dataSchedules || {}

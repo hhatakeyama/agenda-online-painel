@@ -67,11 +67,11 @@ export default function Basic({ companyData }) {
   })
 
   // Fetch
-  const { data } = useFetch([`/states/`])
-  const { data: dataCities } = useFetch([form.values.state ? `/states/${form.values.state}/cities/` : null])
+  const { data } = useFetch([`/states`])
+  const { data: dataCities } = useFetch([form.values.state ? `/states/${form.values.state}/cities` : null])
   const optionsStates = data?.data?.map(state => ({ value: state.id.toString(), label: state.name })) || []
   const optionsCities = dataCities?.data?.map(city => ({ value: city.id.toString(), label: city.name })) || []
-  const { data: organizationsData } = useFetch([isAuthenticated ? `/painel/organizations/` : null])
+  const { data: organizationsData } = useFetch([isAuthenticated ? `/painel/organizations` : null])
   const { data: { data: list = [] } } = organizationsData || { data: {} }
   const organizationsOptions = list?.map(item => ({ label: item.registeredName, value: item.id.toString() }))
   const optionsOrganizations = [{ label: 'Sem Empresa', value: '0' }, ...organizationsOptions]
@@ -82,7 +82,7 @@ export default function Basic({ companyData }) {
     setIsSubmitting(true)
     const { ...restValues } = newValues
     return api
-      [editing ? 'patch' : 'post'](`/painel/companies/${editing ? `update/${companyData?.id}` : 'create'}/`, {
+      [editing ? 'patch' : 'post'](`/painel/companies/${editing ? `update/${companyData?.id}` : 'create'}`, {
         ...restValues,
         socialMedia: JSON.stringify(socialMedias)
       })

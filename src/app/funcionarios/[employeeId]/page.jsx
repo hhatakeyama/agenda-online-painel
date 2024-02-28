@@ -22,7 +22,7 @@ function Employee() {
   const [tab, setTab] = useState('profile')
 
   // Fetch
-  const { data, error } = useFetch([isAuthenticated ? `/admin/employees/${employeeId}/` : null])
+  const { data, error } = useFetch([isAuthenticated ? `/admin/employees/${employeeId}` : null])
   const { data: employeeData } = data || {}
 
   // Constants

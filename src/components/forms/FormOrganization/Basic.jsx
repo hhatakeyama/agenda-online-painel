@@ -54,13 +54,13 @@ export default function Basic({ organizationData, onClose }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        [editing ? 'patch' : 'post'](`/admin/organizations${editing ? `/update/${organizationId}` : ''}/`, {
+        [editing ? 'patch' : 'post'](`/admin/organizations${editing ? `/update/${organizationId}` : ''}`, {
           ...newValues,
           slug: slugify(newValues.tradingName)
         })
         .then(() => {
           if (editing) {
-            mutateGlobal(`/admin/organizations/${organizationId}/`)
+            mutateGlobal(`/admin/organizations/${organizationId}`)
             form.resetTouched()
             form.resetDirty()
           } else {

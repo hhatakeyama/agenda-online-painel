@@ -25,7 +25,7 @@ function Organizations() {
   const [register, setRegister] = useState(false)
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? '/admin/organizations/' : null, { search: searchFilter, page }])
+  const { data, error, mutate } = useFetch([isAuthenticated ? '/admin/organizations' : null, { search: searchFilter, page }])
   const { data: results = [], last_page } = data?.data || {}
   const loading = !data && !error
 

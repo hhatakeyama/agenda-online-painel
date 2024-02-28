@@ -25,7 +25,7 @@ function Agendamentos() {
   const [register, setRegister] = useState(false)
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated && permissionsData?.sa ? '/admin/schedules/' : null, { search: searchFilter, page }])
+  const { data, error, mutate } = useFetch([isAuthenticated && permissionsData?.sa ? '/admin/schedules' : null, { search: searchFilter, page }])
   const { data: results = [], last_page } = data?.data || {}
   const loading = !data && !error
 

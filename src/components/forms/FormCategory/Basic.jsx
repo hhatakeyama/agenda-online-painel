@@ -49,7 +49,7 @@ export default function Basic({ categoryData, onClose }) {
   })
 
   // Fetch
-  const { data } = useFetch([permissionsData?.sa ? `/admin/organizations/` : null])
+  const { data } = useFetch([permissionsData?.sa ? `/admin/organizations` : null])
   const { data: results = [] } = data?.data || {}
   const optionsOrganizations =
     results.map(organization => ({ label: organization.registeredName, value: organization.id.toString() })) || []
@@ -59,10 +59,10 @@ export default function Basic({ categoryData, onClose }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        [editing ? 'patch' : 'post'](`/admin/service-categories${editing ? `/${categoryId}` : ''}/`, { ...newValues })
+        [editing ? 'patch' : 'post'](`/admin/service-categories${editing ? `/${categoryId}` : ''}`, { ...newValues })
         .then(() => {
           if (editing) {
-            mutateGlobal(`/admin/service-categories/${categoryId}/`)
+            mutateGlobal(`/admin/service-categories/${categoryId}`)
             form.resetTouched()
             form.resetDirty()
           } else {

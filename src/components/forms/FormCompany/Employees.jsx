@@ -41,7 +41,7 @@ export default function Employees({ companyData, mutate }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        .patch(`/admin/usuarios/${companyData?.id}/`, { ...newValues }) // Verificar usuário logado no painel
+        .patch(`/admin/usuarios/${companyData?.id}`, { ...newValues }) // Verificar usuário logado no painel
         .then(() => {
           form.reset()
           setTimeout(() => mutate(), 2000)

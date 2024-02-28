@@ -19,7 +19,7 @@ function Category() {
   const [tab, setTab] = useState('category')
 
   // Fetch
-  const { data, error } = useFetch([isAuthenticated ? `/admin/service-categories/${categoryId}/` : null])
+  const { data, error } = useFetch([isAuthenticated ? `/admin/service-categories/${categoryId}` : null])
 
   // Constants
   const tabs = [

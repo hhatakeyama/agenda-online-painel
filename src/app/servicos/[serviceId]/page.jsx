@@ -19,7 +19,7 @@ function Service() {
   const [tab, setTab] = useState('service')
 
   // Fetch
-  const { data, error } = useFetch([isAuthenticated ? `/admin/services/${serviceId}/` : null])
+  const { data, error } = useFetch([isAuthenticated ? `/admin/services/${serviceId}` : null])
 
   // Constants
   const tabs = [

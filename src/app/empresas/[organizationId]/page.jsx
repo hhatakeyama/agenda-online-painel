@@ -19,7 +19,7 @@ function Organization() {
   const [tab, setTab] = useState('organization')
 
   // Fetch
-  const { data } = useFetch([isAuthenticated ? `/admin/organizations/${organizationId}/` : null])
+  const { data } = useFetch([isAuthenticated ? `/admin/organizations/${organizationId}` : null])
 
   // Constants
   const tabs = [

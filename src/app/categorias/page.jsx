@@ -27,13 +27,13 @@ function Categories() {
 
   // Fetch
   const { data, error, mutate } = useFetch([
-    isAuthenticated ? '/admin/service-categories/' : null,
+    isAuthenticated ? '/admin/service-categories' : null,
     { search: searchFilter, page, ...(searchOrganization ? { organization_id: searchOrganization } : {}) }
   ])
   const { data: results = [], last_page } = data?.data || {}
   const loading = !data && !error
 
-  const { data: dataOrganizations } = useFetch([permissionsData?.sa ? `/admin/organizations/` : null])
+  const { data: dataOrganizations } = useFetch([permissionsData?.sa ? `/admin/organizations` : null])
   const { data: resultsOrganizations = [] } = dataOrganizations?.data || {}
   const optionsOrganizations =
     resultsOrganizations.map(organization => ({ label: organization.registeredName, value: organization.id.toString() })) || []

@@ -58,7 +58,7 @@ export default function Basic({ employeeData, onClose }) {
   })
 
   // Fetch
-  const { data } = useFetch([permissionsData?.sa ? `/admin/organizations/` : null])
+  const { data } = useFetch([permissionsData?.sa ? `/admin/organizations` : null])
   const { data: results = [] } = data?.data || {}
   const optionsOrganizations =
     results.map(organization => ({ label: organization.registeredName, value: organization.id.toString() })) || []
@@ -69,14 +69,14 @@ export default function Basic({ employeeData, onClose }) {
     if (form.isDirty()) {
       const { password, confirmPassword, ...restValues } = newValues
       return api
-        [editing ? 'patch' : 'post'](`/admin/employees${editing ? `/${employeeId}` : ''}/`, {
+        [editing ? 'patch' : 'post'](`/admin/employees${editing ? `/${employeeId}` : ''}`, {
           ...restValues,
           ...(password && password !== '' ? { password: password } : {}),
           ...(confirmPassword ? { password_confirmed: confirmPassword } : {})
         })
         .then(() => {
           if (editing) {
-            mutateGlobal(`/admin/employees/${employeeId}/`)
+            mutateGlobal(`/admin/employees/${employeeId}`)
             form.resetTouched()
             form.resetDirty()
           } else {

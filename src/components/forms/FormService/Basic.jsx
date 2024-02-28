@@ -57,11 +57,11 @@ export default function Basic({ serviceData, onClose }) {
   })
 
   // Fetch
-  const { data } = useFetch([permissionsData?.sa ? `/admin/organizations/` : null])
+  const { data } = useFetch([permissionsData?.sa ? `/admin/organizations` : null])
   const { data: results = [] } = data?.data || {}
   const optionsOrganizations =
     results.map(organization => ({ label: organization.registeredName, value: organization.id.toString() })) || []
-  const { data: dataCategories } = useFetch([`/admin/service-categories/`])
+  const { data: dataCategories } = useFetch([`/admin/service-categories`])
   const { data: resultsCategories = [] } = dataCategories?.data || {}
   const optionsCategories =
     resultsCategories.map(category => ({ label: category.name, value: category.id.toString() })) || []
@@ -71,10 +71,10 @@ export default function Basic({ serviceData, onClose }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        [editing ? 'patch' : 'post'](`/admin/services${editing ? `/${serviceId}` : ''}/`, { ...newValues }) // Verificar usuário logado no painel
+        [editing ? 'patch' : 'post'](`/admin/services${editing ? `/${serviceId}` : ''}`, { ...newValues }) // Verificar usuário logado no painel
         .then(() => {
           if (editing) {
-            mutateGlobal(`/admin/services/${serviceId}/`)
+            mutateGlobal(`/admin/services/${serviceId}`)
             form.resetTouched()
             form.resetDirty()
           } else {

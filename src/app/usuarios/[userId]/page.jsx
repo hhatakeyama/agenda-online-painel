@@ -22,7 +22,7 @@ function User() {
   const [tab, setTab] = useState('profile')
 
   // Fetch
-  const { data, error } = useFetch([isAuthenticated ? `/admin/users/${userId}/` : null])
+  const { data, error } = useFetch([isAuthenticated ? `/admin/users/${userId}` : null])
   const { data: userData } = data || {}
 
   // Constants
