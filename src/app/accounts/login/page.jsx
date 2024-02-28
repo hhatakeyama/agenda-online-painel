@@ -4,10 +4,9 @@ import { Container } from '@mantine/core'
 import { useState } from 'react'
 
 import { FormLogin } from '@/components/forms'
-import guardAccount from '@/guards/AccountGuard'
 import { useAuth } from '@/providers/AuthProvider'
 
-function Login() {
+export default function Login() {
   // Hooks
   const { login } = useAuth()
 
@@ -24,5 +23,3 @@ function Login() {
     </Container>
   )
 }
-
-export default guardAccount(Login)

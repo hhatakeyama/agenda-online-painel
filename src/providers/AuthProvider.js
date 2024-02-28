@@ -11,9 +11,6 @@ const AuthContext = createContext(null)
 export const useAuth = () => useContext(AuthContext)
 
 function useProvideAuth() {
-  // Hooks
-  const { cache } = useSWRConfig()
-
   // Constants
   const cookieTokenString = 'skedyou-admin-token'
   const { token: cookieToken, expiry: cookieExpiry } = getCookie(cookieTokenString) || {}
@@ -49,6 +46,7 @@ function useProvideAuth() {
         password: credentials.password
       })
       .then(response => {
+        console.log(response)
         const { data } = response || {}
         if (data?.token) {
           const date = new Date()
@@ -61,6 +59,7 @@ function useProvideAuth() {
         }
       })
       .catch(error => {
+        console.log(error)
         return {
           error:
             error?.response?.data?.message === 'Unauthorized'
@@ -125,12 +124,6 @@ function useProvideAuth() {
   useEffect(() => {
     setIsValidating(loading || userIsValidating)
   }, [loading, userIsValidating])
-
-  // Clear all SWR cache (experimental)
-  useEffect(() => {
-    cache?.clear?.()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated])
 
   return {
     login,

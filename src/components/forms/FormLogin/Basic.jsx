@@ -18,6 +18,7 @@ export default function Basic({ onForgotPassword, onSubmit }) {
   const handleSubmit = async () => {
     setError(null)
     const response = await onSubmit?.(credentials)
+    console.log(response)
     if (response?.error) {
       setError(response.error)
     }
