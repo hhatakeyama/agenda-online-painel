@@ -1,8 +1,6 @@
 'use client'
 
-import axios from 'axios'
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
-import { useSWRConfig } from 'swr'
 
 import { useFetch } from '@/hooks'
 import { api, getCookie, removeCookie, setCookie } from '@/utils'
@@ -23,7 +21,7 @@ function useProvideAuth() {
 
   // // Fetch
   const { data: userData, isValidating: userIsValidating, mutate: userMutate } = useFetch([
-    !!isAuthenticated ? '/admin/me/' : null
+    !!isAuthenticated ? '/api/admin/me/' : null
   ], { revalidateOnFocus: false, dedupingInterval: 60 * 60 * 24 })
 
   const permissionsData = userData?.data?.type ? {
@@ -41,9 +39,9 @@ function useProvideAuth() {
   // Login with credentials
   const login = async credentials => {
     setLoading(true)
-    await axios.get(`${process.env.NEXT_PUBLIC_API_DOMAIN}/sanctum/csrf-cookie`)
+    await api.get('/sanctum/csrf-cookie')
     const response = await api
-      .post('/admin/login/', {
+      .post('/api/admin/login/', {
         email: credentials.email,
         password: credentials.password
       })
@@ -64,7 +62,7 @@ function useProvideAuth() {
           error:
             error?.response?.data?.message === 'Unauthorized'
               ? 'E-mail ou senha inválidos'
-              : 'Ocorreu um erro inesperado. Tente novamente mais tarde'
+              : error?.response?.data?.message
         }
       })
       .finally(() => setLoading(false))
