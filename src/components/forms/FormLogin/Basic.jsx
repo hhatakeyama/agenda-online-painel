@@ -15,7 +15,8 @@ export default function Basic({ onForgotPassword, onSubmit }) {
   })
 
   // Actions
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     setError(null)
     const response = await onSubmit?.(credentials)
     console.log(response)
