@@ -1,4 +1,4 @@
-import { InputBase, Select } from "@mantine/core"
+import { InputBase, MultiSelect, Select } from "@mantine/core"
 import { IMaskInput } from "react-imask"
 
 export const PhoneNumberField = ({ inputProps }) => (
@@ -55,5 +55,21 @@ export const CityField = ({ inputProps }) => (
     {...inputProps}
     label="Cidade"
     placeholder="Cidade"
+  />
+)
+
+export const EmployeesField = ({ inputProps }) => (
+  <MultiSelect
+    {...inputProps}
+    label="Funcionários"
+    placeholder="Funcionários"
+  />
+)
+
+export const ServicesField = ({ inputProps }) => (
+  <MultiSelect
+    {...inputProps}
+    label="Serviços"
+    placeholder="Serviços"
   />
 )

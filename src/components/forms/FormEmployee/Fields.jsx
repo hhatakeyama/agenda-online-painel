@@ -1,4 +1,4 @@
-import { Select, TextInput } from '@mantine/core'
+import { MultiSelect, Select, TextInput } from '@mantine/core'
 
 export const NameField = ({ inputProps }) => (
   <TextInput {...inputProps} label="Nome" placeholder="Nome" type="text" />
@@ -21,10 +21,22 @@ export const ConfirmPasswordField = ({ inputProps }) => (
   />
 )
 
+export const OccupationField = ({ inputProps }) => (
+  <TextInput {...inputProps} label="Cargo" placeholder="Cargo" type="text" />
+)
+
 export const OrganizationField = ({ inputProps }) => (
   <Select
     {...inputProps}
     label="Empresa"
     placeholder="Empresa"
+  />
+)
+
+export const ServicesField = ({ inputProps }) => (
+  <MultiSelect
+    {...inputProps}
+    label="Serviços"
+    placeholder="Serviços"
   />
 )

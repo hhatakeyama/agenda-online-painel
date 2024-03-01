@@ -21,7 +21,7 @@ function useProvideAuth() {
 
   // // Fetch
   const { data: userData, isValidating: userIsValidating, mutate: userMutate } = useFetch([
-    !!isAuthenticated ? '/api/admin/me' : null
+    !!isAuthenticated ? '/admin/me' : null
   ], { revalidateOnFocus: false, dedupingInterval: 60 * 60 * 24 })
 
   const permissionsData = userData?.data?.type ? {

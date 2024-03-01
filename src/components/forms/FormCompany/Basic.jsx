@@ -1,13 +1,14 @@
-import { Alert, Button, Grid, Group, LoadingOverlay, Select, Stack, TextInput, useMantineTheme } from '@mantine/core'
+import { Alert, Button, FileButton, Grid, Group, Image, LoadingOverlay, Select, Stack, Text, TextInput, useMantineTheme } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import { useParams } from 'next/navigation'
 import React, { useState } from 'react'
+import { useSWRConfig } from 'swr'
 
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { api, Yup } from '@/utils'
-import errorHandler from '@/utils/errorHandler'
 
 import * as Fields from './Fields'
 
@@ -15,7 +16,9 @@ export default function Basic({ companyData }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
-  const { isAuthenticated, isValidating, permissionsData } = useAuth()
+  const { mutate: mutateGlobal } = useSWRConfig()
+  const { isAuthenticated, isValidating, permissionsData, userData } = useAuth()
+  const { companyId } = useParams()
 
   // Constants
   const editing = !!companyData
@@ -24,10 +27,12 @@ export default function Basic({ companyData }) {
   const [error, setError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [socialMedias, setSocialMedias] = useState(companyData?.socialMedia ? JSON.parse(companyData?.socialMedia) : { "facebook": "https://facebook.com/", "twitter": "https://twitter.com/", "instagram": "https://instagram.com/" })
+  const [file, setFile] = useState(null)
+  const srcPicture = companyData?.thumb?.indexOf('http') !== -1 ? companyData?.thumb : `${process.env.NEXT_PUBLIC_API_DOMAIN}/storage/companies/original-${companyData?.thumb}`
+  const srcPictureFile = file ? URL.createObjectURL(file) : (srcPicture || '')
 
   // Form
   const initialValues = {
-    organization_id: companyData?.organization_id?.toString() || null,
     name: companyData?.name || '',
     address: companyData?.address || '',
     district: companyData?.district || '',
@@ -40,10 +45,11 @@ export default function Basic({ companyData }) {
     email: companyData?.email || '',
     socialMedia: companyData?.socialMedia || '',
     status: companyData?.status?.toString() || '1',
+    employees: companyData?.company_employees?.flatMap?.(companyEmployee => companyEmployee.employee_id.toString()) || [],
+    services: companyData?.company_services?.flatMap?.(companyService => companyService.service_id.toString()) || [],
   }
 
   const schema = Yup.object().shape({
-    organization_id: Yup.number().required(),
     name: Yup.string().required(),
     address: Yup.string().nullable(),
     district: Yup.string().nullable(),
@@ -56,6 +62,8 @@ export default function Basic({ companyData }) {
     email: Yup.string().nullable().email(),
     socialMedia: Yup.string().nullable(),
     status: Yup.string().nullable(),
+    employees: Yup.array().nullable(),
+    services: Yup.array().nullable(),
   })
 
   // Mantine form
@@ -68,13 +76,20 @@ export default function Basic({ companyData }) {
 
   // Fetch
   const { data } = useFetch([`/states`])
-  const { data: dataCities } = useFetch([form.values.state ? `/states/${form.values.state}/cities` : null])
   const optionsStates = data?.data?.map(state => ({ value: state.id.toString(), label: state.name })) || []
+  
+  const { data: dataCities } = useFetch([form.values.state ? `/states/${form.values.state}/cities` : null])
   const optionsCities = dataCities?.data?.map(city => ({ value: city.id.toString(), label: city.name })) || []
-  const { data: organizationsData } = useFetch([isAuthenticated ? `/painel/organizations` : null])
+  
+  const { data: organizationsData } = useFetch([permissionsData?.sa ? `/admin/organizations` : null])
   const { data: { data: list = [] } } = organizationsData || { data: {} }
   const organizationsOptions = list?.map(item => ({ label: item.registeredName, value: item.id.toString() }))
   const optionsOrganizations = [{ label: 'Sem Empresa', value: '0' }, ...organizationsOptions]
+  
+  const { data: dataEmployees } = useFetch([permissionsData?.sag && userData ? `/admin/employees` : null])
+  const { data: resultsEmployees = [] } = dataEmployees?.data || {}
+  const optionsEmployees =
+    resultsEmployees.map(service => ({ label: service.name, value: service.id.toString() })) || []
 
   // Actions
   const handleSubmit = async (newValues) => {
@@ -82,23 +97,61 @@ export default function Basic({ companyData }) {
     setIsSubmitting(true)
     const { ...restValues } = newValues
     return api
-      [editing ? 'patch' : 'post'](`/painel/companies/${editing ? `update/${companyData?.id}` : 'create'}`, {
+      [editing ? 'patch' : 'post'](`/api/admin/companies${editing ? `/${companyData?.id}` : ''}`, {
         ...restValues,
+        ...(permissionsData?.g && userData ? { organization_id: userData.organization_id } : {}),
         socialMedia: JSON.stringify(socialMedias)
       })
       .then(() => {
-        notifications.show({ title: 'Sucesso', message: 'Dados atualizados com sucesso!', color: 'green' })
+        if (editing) {
+          mutateGlobal(`/api/admin/companies/${companyId}`)
+          form.resetTouched()
+          form.resetDirty()
+        } else {
+          onClose?.()
+        }
+        notifications.show({
+          title: 'Sucesso',
+          message: `Dados ${editing ? 'atualizados' : 'cadastrados'} com sucesso!`,
+          color: 'green'
+        })
       })
       .catch(error => {
         notifications.show({
           title: 'Erro',
           message:
-            errorHandler(error.response.data.errors).messages ||
-            'Erro ao atualizar os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.',
+            error.response?.data?.message ||
+            `Erro ao ${editing ? 'atualizar' : 'cadastrar'} os dados. Entre em contato com o administrador do site ou tente novamente mais tarde.`,
           color: 'red'
         })
       })
       .finally(() => setIsSubmitting(false))
+  }
+
+  const handleFileChange = async file => {
+    setFile(file)
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('fileName', file.name)
+    await api
+      .post(`/api/admin/companies/${companyId}/thumb`, formData, {
+        headers: { "Content-Type": 'multipart/form-data' }
+      })
+      .then(() => {
+        notifications.show({
+          title: 'Sucesso',
+          message: 'Foto de capa atualizada com sucesso!',
+          color: 'green'
+        })
+      })
+      .catch(error => {
+        notifications.show({
+          title: 'Erro',
+          message: error?.response?.data?.error ||
+            'Erro ao atualizar foto de capa. Entre em contato com o administrador do site ou tente novamente mais tarde.',
+          color: 'red'
+        })
+      })
   }
 
   const handleSocialMedias = (type, value) => {
@@ -114,17 +167,19 @@ export default function Basic({ companyData }) {
         <Grid.Col span={editing ? { base: 12, lg: 6 } : { base: 12 }}>
           <Stack>
             <Grid>
-              {permissionsData?.sa && <Grid.Col span={{ base: 12 }}>
-                <Fields.OrganizationField
-                  inputProps={{
-                    ...form.getInputProps('organization_id'),
-                    data: optionsOrganizations,
-                    disabled: isSubmitting,
-                    searchable: true,
-                    required: true
-                  }}
-                />
-              </Grid.Col>}
+              {permissionsData?.sa && (
+                <Grid.Col span={{ base: 12 }}>
+                  <Fields.OrganizationField
+                    inputProps={{
+                      ...form.getInputProps('organization_id'),
+                      data: optionsOrganizations,
+                      disabled: isSubmitting,
+                      searchable: true,
+                      required: true
+                    }}
+                  />
+                </Grid.Col>
+              )}
               <Grid.Col span={{ base: 12 }}>
                 <TextInput {...form.getInputProps('name')} disabled={isSubmitting} label="Nome" placeholder="Nome" type="text" required />
               </Grid.Col>
@@ -179,7 +234,19 @@ export default function Basic({ companyData }) {
           </Stack>
         </Grid.Col>
         <Grid.Col span={editing ? { base: 12, lg: 6 } : { base: 12 }} hidden={!editing}>
-          thumb
+          {editing && (
+            <Stack gap={5} align="center">
+              <FileButton onChange={handleFileChange} accept="image/png,image/jpeg">
+                {(props) =>
+                  <>
+                    <Image {...props} alt="Capa" src={srcPictureFile} radius="md" fit="contain" fallbackSrc="https://placehold.co/600x300?text=Sem imagem" />
+                    <Text {...props} style={{ textWrap: 'nowrap' }}>{userData?.picture ? 'Alterar foto' : 'Selecionar foto'}</Text>
+                    <Text size="sm">733px x 100px</Text>
+                  </>
+                }
+              </FileButton>
+            </Stack>
+          )}
 
           <Grid>
             <Grid.Col span={{ base: 12, sm: 6 }}>
@@ -194,6 +261,14 @@ export default function Basic({ companyData }) {
           </Grid>
         </Grid.Col>
       </Grid>
+      <Fields.EmployeesField
+        inputProps={{
+          ...form.getInputProps('employees'),
+          data: optionsEmployees,
+          disabled: isSubmitting,
+          searchable: true,
+        }}
+      />
 
       {!!error && <Alert color="red" title="Erro">{error}</Alert>}
 

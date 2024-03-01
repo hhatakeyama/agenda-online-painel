@@ -97,6 +97,8 @@ function Employees() {
                 {permissionsData?.sa && <Th>Empresa</Th>}
                 <Th>Nome</Th>
                 <Th>E-mail</Th>
+                <Th>Cargo</Th>
+                <Th>Serviços</Th>
                 <Th>Ativo</Th>
                 <Th>Data Cadastro</Th>
                 <Th><Text inherit ta="right">Ações</Text></Th>
@@ -109,6 +111,8 @@ function Employees() {
                     {permissionsData?.sa && <Table.Td className={classes.td}>{row.organization?.tradingName || '--'}</Table.Td>}
                     <Table.Td className={classes.td}>{row.name}</Table.Td>
                     <Table.Td className={classes.td}>{row.email}</Table.Td>
+                    <Table.Td className={classes.td}>{row.occupation || '--'}</Table.Td>
+                    <Table.Td className={classes.td}>{row.employee_services.length}</Table.Td>
                     <Table.Td className={classes.td}><Display.Status status={row.status} /></Table.Td>
                     <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : '--'}</Table.Td>
                     <Table.Td className={classes.td}>
@@ -120,7 +124,7 @@ function Employees() {
                 )
               }) : (
                 <Table.Tr>
-                  <Table.Td colSpan={permissionsData?.sa ? 6 : 5}>
+                  <Table.Td colSpan={permissionsData?.sa ? 8 : 7}>
                     <Text fw={500} ta="center">
                       Nenhum funcionário encontrado
                     </Text>

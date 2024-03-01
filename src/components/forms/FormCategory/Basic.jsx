@@ -59,10 +59,10 @@ export default function Basic({ categoryData, onClose }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        [editing ? 'patch' : 'post'](`/admin/service-categories${editing ? `/${categoryId}` : ''}`, { ...newValues })
+        [editing ? 'patch' : 'post'](`/api/admin/service-categories${editing ? `/${categoryId}` : ''}`, { ...newValues })
         .then(() => {
           if (editing) {
-            mutateGlobal(`/admin/service-categories/${categoryId}`)
+            mutateGlobal(`/api/admin/service-categories/${categoryId}`)
             form.resetTouched()
             form.resetDirty()
           } else {

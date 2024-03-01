@@ -6,7 +6,7 @@ function useFetch(...args) {
   const [url, query = {}] = params
   const queryObject = new URLSearchParams(query)
   const newQuery = queryObject.toString()
-  const newUrl = newQuery ? `/api${url}?${newQuery}` : url
+  const newUrl = `/api${newQuery ? `${url}?${newQuery}` : url}`
 
   const { data, error, isValidating, mutate } = useSWR(url ? newUrl : null, options)
 

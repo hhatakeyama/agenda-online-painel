@@ -18,7 +18,7 @@ export default function Basic({ userData, onClose }) {
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
   const { mutate: mutateGlobal } = useSWRConfig()
-  const { isValidating, permissionsData, userMutate } = useAuth()
+  const { isValidating, permissionsData, userData: loggedUser, userMutate } = useAuth()
   const { userId } = useParams()
 
   // Constants
@@ -73,14 +73,15 @@ export default function Basic({ userData, onClose }) {
     if (form.isDirty()) {
       const { password, confirmPassword, ...restValues } = newValues
       return await api
-        [editing ? 'patch' : 'post'](`/admin/users${editing ? `/${permissionsData?.ge ? userData?.id : userId}` : ''}`, {
+        [editing ? 'patch' : 'post'](`/api/admin/users${editing ? `/${permissionsData?.ge ? userData?.id : userId}` : ''}`, {
           ...restValues,
+          ...(permissionsData?.g && loggedUser ? { organization_id: loggedUser.organization_id } : {}),
           ...(password && password !== '' ? { password: password } : {}),
           ...(confirmPassword ? { password_confirmed: confirmPassword } : {})
         })
         .then(() => {
           if (editing) {
-            mutateGlobal(`/admin/users/${userId}`)
+            mutateGlobal(`/api/admin/users/${userId}`)
             form.resetTouched()
             form.resetDirty()
             if (permissionsData?.ge) userMutate?.()
@@ -129,7 +130,13 @@ export default function Basic({ userData, onClose }) {
                 <Fields.NameField inputProps={{ ...form.getInputProps('name'), required: true, disabled: isSubmitting }} />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.EmailField inputProps={{ ...form.getInputProps('email'), required: true, disabled: permissionsData?.ge || isSubmitting }} />
+                <Fields.EmailField
+                  inputProps={{
+                    ...form.getInputProps('email'),
+                    required: true,
+                    disabled: (permissionsData?.ge && !!userData) || isSubmitting
+                  }}
+                />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.PasswordField inputProps={{ ...form.getInputProps('password'), disabled: isSubmitting }} />
@@ -149,7 +156,7 @@ export default function Basic({ userData, onClose }) {
                   />
                 </Grid.Col>
               )}
-              {permissionsData.sa && (
+              {permissionsData?.sa && (
                 <Grid.Col span={6}>
                   <Select
                     label="Conta ativa?"

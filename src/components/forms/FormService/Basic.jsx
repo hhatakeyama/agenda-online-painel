@@ -71,10 +71,10 @@ export default function Basic({ serviceData, onClose }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        [editing ? 'patch' : 'post'](`/admin/services${editing ? `/${serviceId}` : ''}`, { ...newValues }) // Verificar usuário logado no painel
+        [editing ? 'patch' : 'post'](`/api/admin/services${editing ? `/${serviceId}` : ''}`, { ...newValues }) // Verificar usuário logado no painel
         .then(() => {
           if (editing) {
-            mutateGlobal(`/admin/services/${serviceId}`)
+            mutateGlobal(`/api/admin/services/${serviceId}`)
             form.resetTouched()
             form.resetDirty()
           } else {

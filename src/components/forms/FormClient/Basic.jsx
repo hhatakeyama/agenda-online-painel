@@ -60,14 +60,14 @@ export default function Basic({ clientData, onClose }) {
     if (form.isDirty()) {
       const { password, confirmPassword, ...restValues } = newValues
       return await api
-        [editing ? 'patch' : 'post'](`/admin/clients${editing ? `/${clientId}` : ''}`, {
+        [editing ? 'patch' : 'post'](`/api/admin/clients${editing ? `/${clientId}` : ''}`, {
           ...restValues,
           ...(password && password !== '' ? { password: password } : {}),
           ...(confirmPassword ? { password_confirmed: confirmPassword } : {})
         })
         .then(() => {
           if (editing) {
-            mutateGlobal(`/admin/clients/${clientId}`)
+            mutateGlobal(`/api/admin/clients/${clientId}`)
             form.resetTouched()
             form.resetDirty()
           } else {

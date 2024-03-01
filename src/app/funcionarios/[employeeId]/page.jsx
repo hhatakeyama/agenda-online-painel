@@ -1,7 +1,7 @@
 'use client'
 
-import { Container, Group, Stack, Tabs, Text } from '@mantine/core'
-import { IconAt, IconChisel, IconUser } from '@tabler/icons-react'
+import { Button, Container, Group, Stack, Tabs, Text } from '@mantine/core'
+import { IconAt, IconUser } from '@tabler/icons-react'
 import { redirect, useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
@@ -28,7 +28,7 @@ function Employee() {
   // Constants
   const tabs = [
     { id: 'profile', label: 'Perfil', icon: <IconUser style={{ height: 12, width: 12 }} /> },
-    { id: 'services', label: 'Serviços', icon: <IconChisel style={{ height: 12, width: 12 }} /> },
+    // { id: 'services', label: 'Serviços', icon: <IconChisel style={{ height: 12, width: 12 }} /> },
   ]
 
   // Validations
@@ -37,7 +37,7 @@ function Employee() {
   return (
     <Container size="100%" mb="50px">
       <Stack>
-        <Group wrap="nowrap">
+        <Group justify="space-between" wrap="nowrap">
           <div>
             <Display.Status status={employeeData?.status} />
             <Text fz="lg" fw={500} className={classes.profileName}>
@@ -48,6 +48,8 @@ function Employee() {
               <Text fz="xs" c="dimmed">{employeeData?.email}</Text>
             </Group>
           </div>
+
+          <Button component="a" href="/funcionarios">Voltar</Button>
         </Group>
 
         <Tabs value={tab} onChange={setTab}>
@@ -65,11 +67,14 @@ function Employee() {
               )}
             </Container>
           </Tabs.Panel>
-          <Tabs.Panel value="services">
+          {/* <Tabs.Panel value="services">
             <Container size="100%" mb="xl" mt="xs">
-              services
+              <FormEmployee.Services employeeData={employeeData} />
+              {employeeData?.employee_services?.map?.(employeeService => (
+                <>{employeeService.service.name}</>
+              ))}
             </Container>
-          </Tabs.Panel>
+          </Tabs.Panel> */}
         </Tabs>
       </Stack>
     </Container>
