@@ -71,7 +71,7 @@ export default function Basic({ serviceData, onClose }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        [editing ? 'patch' : 'post'](`/api/admin/services${editing ? `/${serviceId}` : ''}`, { ...newValues }) // Verificar usuário logado no painel
+        [editing ? 'patch' : 'post'](`/api/admin/services${editing ? `/${serviceId}` : ''}`, { ...newValues })
         .then(() => {
           if (editing) {
             mutateGlobal(`/api/admin/services/${serviceId}`)

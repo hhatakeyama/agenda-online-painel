@@ -155,7 +155,7 @@ export default function Basic({ employeeData, onClose }) {
           <Stack>
             <Grid>
               {permissionsData?.sa && <Grid.Col span={{ base: 12 }}>
-                <Fields.Services
+                <Fields.OrganizationField
                   inputProps={{
                     ...form.getInputProps('organization_id'),
                     data: optionsOrganizations,

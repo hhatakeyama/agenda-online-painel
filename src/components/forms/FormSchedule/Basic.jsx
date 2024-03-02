@@ -61,7 +61,7 @@ export default function Basic({ scheduleData, mutate }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        .patch(`/api/admin/usuarios/${scheduleData?.id}`, { ...newValues }) // Verificar usuário logado no painel
+        .patch(`/api/admin/usuarios/${scheduleData?.id}`, { ...newValues })
         .then(() => {
           form.reset()
           setTimeout(() => mutate(), 2000)
