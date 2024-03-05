@@ -1,7 +1,8 @@
-import { Button, Grid, Group, LoadingOverlay, Select, Stack, Textarea, TextInput, useMantineTheme } from '@mantine/core'
+import { Button, Grid, Group, LoadingOverlay, NumberInput, Select, Stack, Switch, Textarea, TextInput, Tooltip, useMantineTheme } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import { IconInfoCircle } from '@tabler/icons-react'
 import { useParams } from 'next/navigation'
 import React, { useState } from 'react'
 import { useSWRConfig } from 'swr'
@@ -13,7 +14,7 @@ import errorHandler from '@/utils/errorHandler'
 
 import * as Fields from './Fields'
 
-export default function Basic({ serviceData, onClose }) {
+export default function Basic({ mutate, serviceData, onClose }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
@@ -35,16 +36,30 @@ export default function Basic({ serviceData, onClose }) {
     serviceCategory_id: serviceData?.serviceCategory_id?.toString?.() || null,
     price: serviceData?.price || 0.00,
     duration: serviceData?.duration || '00:00',
+    send_email: serviceData?.send_email === 1 || serviceData?.send_email === "1" || false,
+    send_sms: serviceData?.send_sms === 1 || serviceData?.send_sms === "1" || false,
+    email_message: serviceData?.email_message || '',
+    sms_message: serviceData?.sms_message || '',
+    can_choose_random: serviceData?.can_choose_random?.toString?.() || "1",
+    can_choose_employee: serviceData?.can_choose_employee?.toString?.() || "1",
+    // can_simultaneous: serviceData?.can_simultaneous?.toString?.() || "0",
     status: serviceData?.status?.toString?.() || '1',
   }
 
   const schema = Yup.object().shape({
     organization_id: Yup.number().required(),
     name: Yup.string().required(),
-    description: Yup.string(),
+    description: Yup.string().nullable(),
     serviceCategory_id: Yup.number().required(),
-    price: Yup.number().required(),
+    price: Yup.number().nullable().moreThan(0, "Valor obrigatório").required("Valor obrigatório"),
     duration: Yup.string().required(),
+    send_email: Yup.string().required(),
+    send_sms: Yup.string().required(),
+    email_message: Yup.string().nullable(),
+    sms_message: Yup.string().max(160, "Limite de 160 caracteres").nullable(),
+    can_choose_random: Yup.number().required(),
+    can_choose_employee: Yup.number().required(),
+    // can_simultaneous: Yup.boolean().required(),
     status: Yup.number(),
   })
 
@@ -71,13 +86,21 @@ export default function Basic({ serviceData, onClose }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        [editing ? 'patch' : 'post'](`/api/admin/services${editing ? `/${serviceId}` : ''}`, { ...newValues })
+        [editing ? 'patch' : 'post'](
+        `/api/admin/services${editing ? `/${serviceId}` : ''}`,
+        {
+          ...newValues,
+          send_email: newValues.send_email ? "1" : "0",
+          send_sms: newValues.send_sms ? "1" : "0",
+        }
+        )
         .then(() => {
           if (editing) {
             mutateGlobal(`/api/admin/services/${serviceId}`)
             form.resetTouched()
             form.resetDirty()
           } else {
+            mutate()
             onClose?.()
           }
           notifications.show({
@@ -135,12 +158,95 @@ export default function Basic({ serviceData, onClose }) {
                 />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput {...form.getInputProps('price')} disabled={isSubmitting} label="Preço (padrão)" placeholder="Preço" type="number" />
+                <NumberInput
+                  {...form.getInputProps(`price`)}
+                  disabled={isSubmitting}
+                  label="Preço"
+                  placeholder="Preço"
+                  type="number"
+                  decimalScale={2}
+                  fixedDecimalScale
+                  leftSection="R$"
+                />
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <TextInput {...form.getInputProps('duration')} disabled={isSubmitting} label="Duração (padrão)" placeholder="Duração" type="time" />
+                <TextInput
+                  {...form.getInputProps(`duration`)}
+                  disabled={isSubmitting}
+                  label="Duração (de 5 em 5 minutos)"
+                  placeholder="Duração"
+                  type="time"
+                  step={300}
+                />
               </Grid.Col>
-              <Grid.Col span={6}>
+              <Grid.Col span={{ xs: 12 }}>
+                <Stack>
+                  <Switch {...form.getInputProps(`send_email`)} checked={form.values.send_email} label="Enviar e-mail" />
+                  <Textarea
+                    {...form.getInputProps(`email_message`)}
+                    disabled={isSubmitting}
+                    label="Texto do e-mail"
+                    placeholder="Texto do e-mail"
+                    rows={5}
+                  />
+                </Stack>
+              </Grid.Col>
+              <Grid.Col span={{ xs: 12 }}>
+                <Stack>
+                  <Switch {...form.getInputProps(`send_sms`)} checked={form.values.send_sms} label="Enviar SMS" />
+                  <Textarea
+                    {...form.getInputProps(`sms_message`)}
+                    disabled={isSubmitting}
+                    label={`Texto do SMS (limite ${160 - form.values.sms_message.length} caracteres)`}
+                    placeholder="Texto do SMS"
+                    rows={5}
+                    maxLength={160}
+                  />
+                </Stack>
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Select
+                  label={<>
+                    Colaborador aleatório?{" "}
+                    <Tooltip label="Permitir usuário deixar plataforma escolher colaborador aleatório disponível?" color="blue">
+                      <IconInfoCircle color="#1c7ed6" size={14} />
+                    </Tooltip>
+                  </>}
+                  placeholder="Colaborador aleatório?"
+                  data={[{ value: '1', label: 'Sim' }, { value: '0', label: 'Não' }]}
+                  disabled={isSubmitting}
+                  {...form.getInputProps('can_choose_random')}
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Select
+                  label={<>
+                    Selecionar colaborador?{" "}
+                    <Tooltip label="Permitir usuário escolher o próprio colaborador?" color="blue">
+                      <IconInfoCircle color="#1c7ed6" size={14} />
+                    </Tooltip>
+                  </>}
+                  placeholder="Selecionar colaborador?"
+                  data={[{ value: '1', label: 'Sim' }, { value: '0', label: 'Não' }]}
+                  disabled={isSubmitting}
+                  {...form.getInputProps('can_choose_employee')}
+                />
+              </Grid.Col>
+              {/* <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Select
+                  label={<>
+                    Permite serviços simultâneos?{" "}
+                    <Tooltip label="Permitir que serviços sejam executados simultaneamente com outros serviços?" color="blue">
+                      <IconInfoCircle color="#1c7ed6" size={14} />
+                    </Tooltip>
+                  </>}
+                  placeholder="Permite serviços simultâneos?"
+                  data={[{ value: '1', label: 'Sim' }, { value: '0', label: 'Não' }]}
+                  disabled={isSubmitting}
+                  {...form.getInputProps('status')}
+                />
+              </Grid.Col> */}
+              <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Select
                   label="Ativo?"
                   placeholder="Ativo?"
@@ -165,6 +271,6 @@ export default function Basic({ serviceData, onClose }) {
           Salvar
         </Button>
       </Group>
-    </form>
+    </form >
   )
 }

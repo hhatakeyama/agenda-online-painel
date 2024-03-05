@@ -11,6 +11,7 @@ import guardAccount from '@/guards/AccountGuard'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { dateToHuman } from '@/utils'
+import { currencyValue } from '@/utils/converter'
 
 import classes from './Services.module.css'
 
@@ -94,8 +95,15 @@ function Services() {
           <Table horizontalSpacing="xs" verticalSpacing="xs" miw={700} highlightOnHover>
             <Table.Tbody>
               <Table.Tr>
-                {permissionsData?.sa && <Th>Empresa</Th>}
+                {permissionsData?.sa && (
+                  <>
+                    <Th>ID</Th>
+                    <Th>Empresa</Th>
+                  </>
+                )}
                 <Th>Nome</Th>
+                <Th>Preço</Th>
+                <Th>Duração</Th>
                 <Th>Ativo</Th>
                 <Th>Data Cadastro</Th>
                 <Th><Text inherit ta="right">Ações</Text></Th>
@@ -105,8 +113,15 @@ function Services() {
               {results.length > 0 ? results.map((row) => {
                 return (
                   <Table.Tr key={row.id}>
-                    {permissionsData?.sa && <Table.Td className={classes.td}>{row.organization?.tradingName}</Table.Td>}
+                    {permissionsData?.sa && (
+                      <>
+                        <Table.Td className={classes.td}>{row.id}</Table.Td>
+                        <Table.Td className={classes.td}>{row.organization?.tradingName}</Table.Td>
+                      </>
+                    )}
                     <Table.Td className={classes.td}>{row.name}</Table.Td>
+                    <Table.Td className={classes.td}>{currencyValue(row.price)}</Table.Td>
+                    <Table.Td className={classes.td}>{row.duration}</Table.Td>
                     <Table.Td className={classes.td}><Display.Status status={row.status} /></Table.Td>
                     <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : '--'}</Table.Td>
                     <Table.Td className={classes.td}>
@@ -118,7 +133,7 @@ function Services() {
                 )
               }) : (
                 <Table.Tr>
-                  <Table.Td colSpan={permissionsData?.sa ? 5 : 4}>
+                  <Table.Td colSpan={permissionsData?.sa ? 8 : 6}>
                     <Text fw={500} ta="center">
                       Nenhum serviço encontrado
                     </Text>
@@ -136,7 +151,7 @@ function Services() {
       </Stack>
 
       <Modal opened={register} onClose={() => setRegister(false)} title="Cadastrar serviço" centered>
-        <FormService.Basic mutate={mutate} />
+        <FormService.Basic mutate={mutate} onClose={() => setRegister(false)} />
       </Modal>
     </Container>
   )

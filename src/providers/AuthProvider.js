@@ -21,7 +21,7 @@ function useProvideAuth() {
 
   // // Fetch
   const { data: userData, isValidating: userIsValidating, mutate: userMutate } = useFetch([
-    !!isAuthenticated ? '/admin/me' : null
+    isAuthenticated === true ? '/admin/me' : null
   ], { revalidateOnFocus: false, dedupingInterval: 60 * 60 * 24 })
 
   const permissionsData = userData?.data?.type ? {
@@ -73,7 +73,7 @@ function useProvideAuth() {
   // Logout user from API
   const logout = async () => {
     try {
-      await api.post('/admin/logout')
+      await api.post('/api/admin/logout')
     } finally {
       removeCookie(cookieTokenString)
       setIsAuthenticated(false)

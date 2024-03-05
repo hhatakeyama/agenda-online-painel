@@ -65,11 +65,3 @@ export const EmployeesField = ({ inputProps }) => (
     placeholder="Funcionários"
   />
 )
-
-export const ServicesField = ({ inputProps }) => (
-  <MultiSelect
-    {...inputProps}
-    label="Serviços"
-    placeholder="Serviços"
-  />
-)

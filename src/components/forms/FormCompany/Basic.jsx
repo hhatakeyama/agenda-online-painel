@@ -17,7 +17,7 @@ export default function Basic({ companyData }) {
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
   const { mutate: mutateGlobal } = useSWRConfig()
-  const { isAuthenticated, isValidating, permissionsData, userData } = useAuth()
+  const { isValidating, permissionsData, userData } = useAuth()
   const { companyId } = useParams()
 
   // Constants
@@ -33,6 +33,7 @@ export default function Basic({ companyData }) {
 
   // Form
   const initialValues = {
+    organization_id: companyData?.organization_id?.toString() || '',
     name: companyData?.name || '',
     address: companyData?.address || '',
     district: companyData?.district || '',
@@ -50,6 +51,7 @@ export default function Basic({ companyData }) {
   }
 
   const schema = Yup.object().shape({
+    organization_id: permissionsData?.sa ? Yup.number().nullable() : Yup.number().required(),
     name: Yup.string().required(),
     address: Yup.string().nullable(),
     district: Yup.string().nullable(),
@@ -175,7 +177,7 @@ export default function Basic({ companyData }) {
                       data: optionsOrganizations,
                       disabled: isSubmitting,
                       searchable: true,
-                      required: true
+                      required: permissionsData?.ge
                     }}
                   />
                 </Grid.Col>

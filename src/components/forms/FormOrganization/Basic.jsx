@@ -54,7 +54,7 @@ export default function Basic({ organizationData, onClose }) {
     setIsSubmitting(true)
     if (form.isDirty()) {
       return api
-        [editing ? 'patch' : 'post'](`/api/admin/organizations${editing ? `/update/${organizationId}` : ''}`, {
+        [editing ? 'patch' : 'post'](`/api/admin/organizations${editing ? `/${organizationId}` : ''}`, {
           ...newValues,
           slug: slugify(newValues.tradingName)
         })

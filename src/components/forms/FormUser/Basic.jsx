@@ -134,7 +134,7 @@ export default function Basic({ userData, onClose }) {
                   inputProps={{
                     ...form.getInputProps('email'),
                     required: true,
-                    disabled: (permissionsData?.ge && !!userData) || isSubmitting
+                    disabled: isSubmitting
                   }}
                 />
               </Grid.Col>

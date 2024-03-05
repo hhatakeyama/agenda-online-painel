@@ -64,7 +64,10 @@ export default function Basic({ employeeData, onClose }) {
   const { data: results = [] } = data?.data || {}
   const optionsOrganizations =
     results.map(organization => ({ label: organization.registeredName, value: organization.id.toString() })) || []
-  const { data: dataServices } = useFetch([permissionsData?.sag && userData ? `/admin/services` : null])
+  const { data: dataServices } = useFetch([
+    permissionsData?.sag && userData ? `/admin/services` : null,
+    { organization_id: form.values.organization_id }
+  ])
   const { data: resultsServices = [] } = dataServices?.data || {}
   const optionsServices =
     resultsServices.map(service => ({ label: service.name, value: service.id.toString() })) || []
