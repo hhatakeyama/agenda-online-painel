@@ -15,6 +15,7 @@ import {
 import { useDisclosure } from '@mantine/hooks'
 import { IconChevronDown, IconLogout, IconSettings } from '@tabler/icons-react'
 import cx from 'clsx'
+import Link from 'next/link'
 import { useState } from 'react'
 
 import { useAuth } from '@/providers/AuthProvider'
@@ -64,7 +65,7 @@ export default function Header() {
                 <Menu.Label>Minha Conta</Menu.Label>
                 <Menu.Item
                   leftSection={<IconSettings style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
-                  component="a"
+                  component={Link}
                   href="/accounts/perfil">
                   Perfil
                 </Menu.Item>
@@ -83,7 +84,7 @@ export default function Header() {
             </Menu>
           ) : (
             <Group visibleFrom="sm">
-              <Button component="a" href="/accounts/login" variant="default">Login</Button>
+              <Button component={Link} href="/accounts/login" variant="default">Login</Button>
             </Group>
           )}
         </Group>

@@ -22,6 +22,7 @@ export default function Basic({ employeeData, onClose }) {
 
   // Constants
   const editing = !!employeeData
+  const profileId = employeeId || employeeData?.id || null
 
   // States
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -78,15 +79,15 @@ export default function Basic({ employeeData, onClose }) {
     if (form.isDirty()) {
       const { password, confirmPassword, ...restValues } = newValues
       return api
-        [editing ? 'patch' : 'post'](`/api/admin/employees${editing ? `/${employeeId}` : ''}`, {
+        [editing ? 'patch' : 'post'](`/api/admin/employees${editing ? `/${profileId}` : ''}`, {
           ...restValues,
           ...(permissionsData?.g && userData ? { organization_id: userData.organization_id } : {}),
           ...(password && password !== '' ? { password: password } : {}),
-          ...(confirmPassword ? { password_confirmed: confirmPassword } : {})
+          ...(confirmPassword ? { password_confirmation: confirmPassword } : {})
         })
         .then(() => {
           if (editing) {
-            mutateGlobal(`/api/admin/employees/${employeeId}`)
+            mutateGlobal(employeeId ? `/api/admin/employees/${profileId}` : '/api/admin/me')
             form.resetTouched()
             form.resetDirty()
           } else {
@@ -117,7 +118,7 @@ export default function Basic({ employeeData, onClose }) {
     formData.append('file', file)
     formData.append('fileName', file.name)
     await api
-      .post(`/api/admin/employees/${employeeId}/picture`, formData, {
+      .post(`/api/admin/employees/${profileId}/picture`, formData, {
         headers: { "Content-Type": 'multipart/form-data' }
       })
       .then(() => {
@@ -180,29 +181,33 @@ export default function Basic({ employeeData, onClose }) {
               <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Fields.ConfirmPasswordField inputProps={{ ...form.getInputProps('confirmPassword'), disabled: isSubmitting }} />
               </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Fields.OccupationField inputProps={{ ...form.getInputProps('occupation'), disabled: isSubmitting }} />
-              </Grid.Col>
-              <Grid.Col span={6}>
-                <Select
-                  label="Conta ativa?"
-                  placeholder="Conta ativa?"
-                  data={[{ value: '1', label: 'Sim' }, { value: '0', label: 'Não' }]}
-                  disabled={isSubmitting}
-                  {...form.getInputProps('status')}
-                />
-              </Grid.Col>
-              <Grid.Col span={{ base: 12 }}>
-                <Fields.ServicesField
-                  inputProps={{
-                    ...form.getInputProps('services'),
-                    data: optionsServices,
-                    disabled: isSubmitting,
-                    searchable: true,
-                    required: true,
-                  }}
-                />
-              </Grid.Col>
+              {permissionsData.sag && (
+                <>
+                  <Grid.Col span={{ base: 12, sm: 6 }}>
+                    <Fields.OccupationField inputProps={{ ...form.getInputProps('occupation'), disabled: isSubmitting }} />
+                  </Grid.Col>
+                  <Grid.Col span={6}>
+                    <Select
+                      label="Conta ativa?"
+                      placeholder="Conta ativa?"
+                      data={[{ value: '1', label: 'Sim' }, { value: '0', label: 'Não' }]}
+                      disabled={isSubmitting}
+                      {...form.getInputProps('status')}
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12 }}>
+                    <Fields.ServicesField
+                      inputProps={{
+                        ...form.getInputProps('services'),
+                        data: optionsServices,
+                        disabled: isSubmitting,
+                        searchable: true,
+                        required: true,
+                      }}
+                    />
+                  </Grid.Col>
+                </>
+              )}
             </Grid>
           </Stack>
         </Group>

@@ -3,6 +3,7 @@
 import { Button, Container, Grid, Group, LoadingOverlay, MultiSelect, Stack, Tabs, Text } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconBuildingStore, IconChisel } from '@tabler/icons-react'
+import Link from 'next/link'
 import { redirect, useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
@@ -93,7 +94,7 @@ function Company() {
     <Container size="100%" mb="50px">
       <Stack>
         <Group justify="space-between">
-          <Button component="a" href="/unidades">Voltar</Button>
+          <Button component={Link} href="/unidades">Voltar</Button>
         </Group>
         <Tabs value={tab} onChange={setTab}>
           <Tabs.List>

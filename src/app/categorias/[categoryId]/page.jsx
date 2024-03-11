@@ -2,6 +2,7 @@
 
 import { Alert, Button, Container, Group, Stack, Tabs, Text } from '@mantine/core'
 import { IconCategory, IconInfoCircle } from '@tabler/icons-react'
+import Link from 'next/link'
 import { redirect, useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
@@ -35,7 +36,7 @@ function Category() {
         <Group justify="space-between">
           <Text>Categoria {data?.data?.name || ''}</Text>
 
-          <Button component="a" href="/categorias">Voltar</Button>
+          <Button component={Link} href="/categorias">Voltar</Button>
         </Group>
 
         <Tabs value={tab} onChange={setTab}>

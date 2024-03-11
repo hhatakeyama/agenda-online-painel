@@ -63,7 +63,7 @@ export default function Basic({ clientData, onClose }) {
         [editing ? 'patch' : 'post'](`/api/admin/clients${editing ? `/${clientId}` : ''}`, {
           ...restValues,
           ...(password && password !== '' ? { password: password } : {}),
-          ...(confirmPassword ? { password_confirmed: confirmPassword } : {})
+          ...(confirmPassword ? { password_confirmation: confirmPassword } : {})
         })
         .then(() => {
           if (editing) {

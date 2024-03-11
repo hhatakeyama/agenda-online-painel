@@ -77,7 +77,7 @@ export default function Basic({ userData, onClose }) {
           ...restValues,
           ...(permissionsData?.g && loggedUser ? { organization_id: loggedUser.organization_id } : {}),
           ...(password && password !== '' ? { password: password } : {}),
-          ...(confirmPassword ? { password_confirmed: confirmPassword } : {})
+          ...(confirmPassword ? { password_confirmation: confirmPassword } : {})
         })
         .then(() => {
           if (editing) {

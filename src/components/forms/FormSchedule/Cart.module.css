@@ -1,0 +1,11 @@
+.employeeSelector:hover {
+  background-color: #F5F5F5;
+}
+
+.unavailableEmployeeSelector {
+  opacity: 0.8;
+}
+
+.unavailableEmployeeSelector:hover {
+  background-color: #F5F5F5;
+}

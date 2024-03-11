@@ -5,6 +5,7 @@ import '@mantine/dates/styles.css';
 import { Button, Center, Container, Divider, Grid, Group, LoadingOverlay, Modal, MultiSelect, Paper, rem, ScrollArea, Select, Stack, Table, Text, TextInput } from '@mantine/core'
 import { DatePicker } from '@mantine/dates'
 import { IconSearch } from '@tabler/icons-react'
+import Link from 'next/link';
 import { redirect } from 'next/navigation'
 import { Fragment, useEffect, useState } from 'react'
 
@@ -28,7 +29,7 @@ function Calendar() {
   // States
   const [search, setSearch] = useState('')
   const [searchFilter, setSearchFilter] = useState('')
-  const [searchOrganization, setSearchOrganization] = useState(userData?.organization_id || '')
+  const [searchOrganization, setSearchOrganization] = useState('')
   const [searchCompany, setSearchCompany] = useState('')
   const [searchServices, setSearchServices] = useState([])
   const [searchEmployees, setSearchEmployees] = useState([])
@@ -36,13 +37,13 @@ function Calendar() {
   const [register, setRegister] = useState(false)
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/companies` : null, { organization_id: searchOrganization }])
+  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/companies` : null, { organization_id: userData?.organization_id || searchOrganization }])
   const { data: resultsCompanies = [] } = data?.data || {}
   const optionsCompanies =
     resultsCompanies.map(company => ({ label: company.name, value: company.id.toString() })) || []
 
-  const { data: dataServices, error: errorServices, mutate: mutateServices } = useFetch([
-    isAuthenticated ? `/admin/services` : null,
+  const { data: dataServices } = useFetch([
+    permissionsData?.sag ? `/admin/services` : null,
     {
       organization_id: searchOrganization,
       ...(optionsCompanies.length > 1 && searchCompany ? { company: searchCompany } : {})
@@ -52,8 +53,8 @@ function Calendar() {
   const optionsServices =
     resultsServices.map(employee => ({ label: employee.name, value: employee.id.toString() })) || []
 
-  const { data: dataEmployees, error: errorEmployees, mutate: mutateEmployees } = useFetch([
-    isAuthenticated ? `/admin/employees` : null,
+  const { data: dataEmployees } = useFetch([
+    permissionsData?.sag ? `/admin/employees` : null,
     {
       organization_id: searchOrganization,
       ...(searchServices ? { services: searchServices } : {})
@@ -63,11 +64,12 @@ function Calendar() {
   const optionsEmployees =
     resultsEmployees.map(employee => ({ label: employee.name, value: employee.id.toString() })) || []
 
-  const { data: dataSchedules, error: errorSchedules, mutate: mutateSchedules } = useFetch([
+  const { data: dataSchedules } = useFetch([
     isAuthenticated ? '/admin/schedules/calendar' : null,
     {
       search: searchFilter,
-      date: dateToDatabase(date), ...(searchCompany ? { company: searchCompany } : {}),
+      date: dateToDatabase(date),
+      ...(searchCompany ? { company: searchCompany } : {}),
       ...(searchEmployees ? { employees: searchEmployees } : {})
     }
   ])
@@ -147,24 +149,28 @@ function Calendar() {
                 onBlur={event => setSearchFilter(event.target.value)}
               />
             </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
-              <MultiSelect
-                placeholder="Serviços"
-                data={optionsServices}
-                searchable
-                value={searchServices}
-                onChange={option => setSearchServices(option)}
-              />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
-              <MultiSelect
-                placeholder="Colaboradores"
-                data={optionsEmployees}
-                searchable
-                value={searchEmployees}
-                onChange={option => setSearchEmployees(option)}
-              />
-            </Grid.Col>
+            {permissionsData?.sag && (
+              <>
+                <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
+                  <MultiSelect
+                    placeholder="Serviços"
+                    data={optionsServices}
+                    searchable
+                    value={searchServices}
+                    onChange={option => setSearchServices(option)}
+                  />
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
+                  <MultiSelect
+                    placeholder="Colaboradores"
+                    data={optionsEmployees}
+                    searchable
+                    value={searchEmployees}
+                    onChange={option => setSearchEmployees(option)}
+                  />
+                </Grid.Col>
+              </>
+            )}
           </Grid>
           <Divider />
         </Stack>
@@ -219,7 +225,7 @@ function Calendar() {
                             <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
                             <Table.Td className={classes.td}>
                               <Group gap="xs">
-                                <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/agendamentos/${row.id}`}>Editar</Button>
+                                <Button size="compact-sm" component={Link} color="orange" title="Editar" href={`/agendamentos/${row.schedule_id}`}>Editar</Button>
                               </Group>
                             </Table.Td>
                           </Table.Tr>

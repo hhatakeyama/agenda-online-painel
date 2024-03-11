@@ -15,9 +15,9 @@ export default function Navbar() {
 
   // Constants
   const menu = [
-    { link: `/agendamentos/calendario`, label: 'Agendamentos', icon: IconCalendar, visible: permissionsData?.ge },
-    { link: `/accounts/perfil`, label: 'Perfil', icon: IconUser, visible: permissionsData?.ge },
-    { link: `/agendamentos`, label: 'Agendamentos', icon: IconCalendar, visible: permissionsData?.sa },
+    { link: '/agendamentos/calendario', label: 'Agendamentos', icon: IconCalendar, visible: permissionsData?.ge },
+    { link: '/accounts/perfil', label: 'Perfil', icon: IconUser, visible: permissionsData?.ge },
+    { link: '/agendamentos', label: 'Agendamentos', icon: IconCalendar, visible: permissionsData?.sa },
     { link: '/empresas', label: 'Empresas', icon: IconBuilding, visible: permissionsData?.sa },
     { link: '/categorias', label: 'Categorias', icon: IconCategory, visible: permissionsData?.sag },
     { link: '/servicos', label: 'Serviços', icon: IconChisel, visible: permissionsData?.sag },
@@ -29,7 +29,7 @@ export default function Navbar() {
     // { link: '/relatorios', label: 'Relatórios', icon: IconGraph, visible: permissionsData?.sa },
   ].filter(item => item.visible)
   const menuItens = menu.map((item) => (
-    <a
+    <Link
       className={classes.link}
       data-active={pathname.indexOf(item.link) !== -1 || undefined}
       href={item.link}
@@ -37,7 +37,7 @@ export default function Navbar() {
     >
       <item.icon className={classes.linkIcon} stroke={1.5} />
       <span>{item.label}</span>
-    </a>
+    </Link>
   ))
 
   if (!isAuthenticated && !userData) return null

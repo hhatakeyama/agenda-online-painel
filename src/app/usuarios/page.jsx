@@ -2,6 +2,7 @@
 
 import { Button, Center, Container, Divider, Grid, Group, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Select, Stack, Table, Text, TextInput } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { useState } from 'react'
 
@@ -115,7 +116,7 @@ function Users() {
                     <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : '--'}</Table.Td>
                     <Table.Td className={classes.td}>
                       <Group gap="xs" justify="flex-end">
-                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/usuarios/${row.id}`}>Editar</Button>
+                        <Button size="compact-sm" component={Link} color="orange" title="Editar" href={`/usuarios/${row.id}`}>Editar</Button>
                       </Group>
                     </Table.Td>
                   </Table.Tr>

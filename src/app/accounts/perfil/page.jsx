@@ -5,7 +5,7 @@ import { IconAt, IconUser } from '@tabler/icons-react'
 import React, { useState } from 'react'
 
 import * as Display from '@/components/display'
-import { FormUser } from '@/components/forms'
+import { FormEmployee, FormUser } from '@/components/forms'
 import guardAccount from '@/guards/AccountGuard'
 import { useAuth } from '@/providers/AuthProvider'
 
@@ -13,7 +13,7 @@ import classes from './Profile.module.css'
 
 function Profile() {
   // Hooks
-  const { userData } = useAuth()
+  const { permissionsData, userData } = useAuth()
 
   // States
   const [tab, setTab] = useState('profile')
@@ -50,7 +50,7 @@ function Profile() {
           <Tabs.Panel value="profile">
             {userData && tab === 'profile' && (
               <Container size="100%" mb="xl" mt="xs">
-                <FormUser.Basic userData={userData} />
+                {permissionsData.sag ? <FormUser.Basic userData={userData} /> : <FormEmployee.Basic employeeData={userData} />}
               </Container>
             )}
           </Tabs.Panel>

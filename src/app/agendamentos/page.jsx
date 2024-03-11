@@ -2,6 +2,7 @@
 
 import { Box, Button, Center, Container, Group, LoadingOverlay, Modal, Pagination, rem, ScrollArea, Stack, Table, Text, TextInput } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Fragment, useState } from 'react'
 
@@ -101,7 +102,7 @@ function Agendamentos() {
                     <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
                     <Table.Td className={classes.td}>
                       <Group gap="xs">
-                        <Button size="compact-sm" component="a" color="orange" title="Editar" href={`/agendamentos/${row.id}`}>Editar</Button>
+                        <Button size="compact-sm" component={Link} color="orange" title="Editar" href={`/agendamentos/${row.id}`}>Editar</Button>
                       </Group>
                     </Table.Td>
                   </Table.Tr>

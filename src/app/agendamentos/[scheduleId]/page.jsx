@@ -2,23 +2,25 @@
 
 import { Button, Container, Group, Stack, Tabs } from '@mantine/core'
 import { IconBuilding } from '@tabler/icons-react'
+import Link from 'next/link'
 import { redirect, useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
+import { FormSchedule } from '@/components/forms'
 import guardAccount from '@/guards/AccountGuard'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 
 function Agendamento() {
   // Hooks
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, permissionsData } = useAuth()
   const { scheduleId } = useParams()
 
   // States
   const [tab, setTab] = useState('schedule')
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/schedules/${scheduleId}` : null])
+  const { data, error } = useFetch([isAuthenticated ? `/admin/schedules/${scheduleId}` : null])
   const { data: scheduleData } = data || {}
 
   // Constants
@@ -33,7 +35,7 @@ function Agendamento() {
     <Container size="100%" mb="50px">
       <Stack>
         <Group justify="space-between">
-          <Button component="a" href="/agendamentos">Voltar</Button>
+          <Button component={Link} href={permissionsData?.sa ? "/agendamentos" : "/agendamentos/calendario"}>Voltar</Button>
         </Group>
         <Tabs value={tab} onChange={setTab}>
           <Tabs.List>
@@ -46,7 +48,7 @@ function Agendamento() {
           <Tabs.Panel value="schedule">
             {scheduleData && tab === 'schedule' && (
               <Container size="100%" mb="xl" mt="xs">
-                {JSON.stringify(scheduleData)}
+                <FormSchedule.Basic scheduleData={scheduleData} />
               </Container>
             )}
           </Tabs.Panel>

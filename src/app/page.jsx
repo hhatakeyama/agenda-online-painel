@@ -1,6 +1,7 @@
 'use client'
 
 import { Button, Center, Container, Group, Loader, Stack, Text } from '@mantine/core'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { useEffect } from 'react'
 
@@ -39,18 +40,18 @@ export default function Home() {
         <Text>Acesse o menu abaixo.</Text>
 
         <Group>
-          <Button component="a" href="/agendamentos">Agendamentos</Button>
+          <Button component={Link} href="/agendamentos">Agendamentos</Button>
           {permissionsData?.sa && (
-            <Button component="a" href="/empresa">Empresa</Button>
+            <Button component={Link} href="/empresa">Empresa</Button>
           )}
           {permissionsData?.sag && (
             <>
-              <Button component="a" href="/categorias">Categorias</Button>
-              <Button component="a" href="/servicos">Serviços</Button>
-              <Button component="a" href="/funcionarios">Funcionários</Button>
-              <Button component="a" href="/unidades">Unidades</Button>
-              <Button component="a" href="/clientes">Clientes</Button>
-              <Button component="a" href="/usuarios">Usuários</Button>
+              <Button component={Link} href="/categorias">Categorias</Button>
+              <Button component={Link} href="/servicos">Serviços</Button>
+              <Button component={Link} href="/funcionarios">Funcionários</Button>
+              <Button component={Link} href="/unidades">Unidades</Button>
+              <Button component={Link} href="/clientes">Clientes</Button>
+              <Button component={Link} href="/usuarios">Usuários</Button>
             </>
           )}
         </Group>

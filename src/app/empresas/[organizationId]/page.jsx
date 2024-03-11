@@ -2,6 +2,7 @@
 
 import { Button, Container, Group, Stack, Tabs, Text } from '@mantine/core'
 import { IconBuilding } from '@tabler/icons-react'
+import Link from 'next/link'
 import { redirect, useParams } from 'next/navigation'
 import React, {  useState } from 'react'
 
@@ -35,7 +36,7 @@ function Organization() {
         <Group justify="space-between">
           <Text>Empresa {data?.data?.registeredName || ''}</Text>
 
-          <Button component="a" href="/empresas">Voltar</Button>
+          <Button component={Link} href="/empresas">Voltar</Button>
         </Group>
 
         <Tabs value={tab} onChange={setTab}>
