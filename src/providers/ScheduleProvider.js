@@ -16,6 +16,7 @@ function useProvideSchedule() {
   const defaultSchedule = {
     date: today,
     start_time: '00:00',
+    client_id: null,
     items: [],
   }
 
@@ -35,6 +36,7 @@ function useProvideSchedule() {
     } else {
       // eslint-disable-next-line no-unused-vars
       const { employee_services, service_category, ...restService } = service
+      restService.employees = employee_services.flatMap(employeeService => employeeService.employee)
       const newServices = [...selectedServices, restService]
       setSelectedServices(newServices)
       setStorage('services', newServices)

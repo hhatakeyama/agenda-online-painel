@@ -1,32 +1,25 @@
 'use client'
 
-import { Button, Container, Group, Stack, Tabs } from '@mantine/core'
+import { Box, Button, Container, Grid, Group, Stack, Tabs, Text } from '@mantine/core'
 import { IconBuilding } from '@tabler/icons-react'
 import Link from 'next/link'
 import { redirect, useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
-import { FormSchedule } from '@/components/forms'
+import ScheduleItem from '@/components/forms/FormSchedule/ScheduleItem'
 import guardAccount from '@/guards/AccountGuard'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
+import { dateToHuman } from '@/utils'
 
 function Agendamento() {
   // Hooks
   const { isAuthenticated, permissionsData } = useAuth()
   const { scheduleId } = useParams()
 
-  // States
-  const [tab, setTab] = useState('schedule')
-
   // Fetch
   const { data, error } = useFetch([isAuthenticated ? `/admin/schedules/${scheduleId}` : null])
   const { data: scheduleData } = data || {}
-
-  // Constants
-  const tabs = [
-    { id: 'schedule', label: 'Agendamento', icon: <IconBuilding style={{ height: 12, width: 12 }} /> },
-  ]
 
   // Validations
   if ((isAuthenticated === false) || !!error) return redirect('/')
@@ -37,22 +30,38 @@ function Agendamento() {
         <Group justify="space-between">
           <Button component={Link} href={permissionsData?.sa ? "/agendamentos" : "/agendamentos/calendario"}>Voltar</Button>
         </Group>
-        <Tabs value={tab} onChange={setTab}>
-          <Tabs.List>
-            {tabs.map(item => (
-              <Tabs.Tab key={item.id} value={item.id} leftSection={item.icon}>
-                {item.label}
-              </Tabs.Tab>
+        <Stack>
+          <Box>
+            <Text size="lg"><strong>Data</strong>: {scheduleData?.date ? dateToHuman(scheduleData?.date, 'date') : ''}</Text>
+            {/* {scheduleData?.schedule_items?.[0] && (
+              <Text size="lg"><strong>Hora</strong>: {scheduleData?.schedule_items[0].start_time} - {scheduleData?.schedule_items[scheduleData?.schedule_items.length - 1].end_time} ({totalDuration}min)</Text>
+            )} */}
+            <Text>
+              <strong>Local</strong>: {scheduleData?.company?.name}<br />{scheduleData?.company?.address}, {scheduleData?.company?.district}, {scheduleData?.company?.city?.name}/{scheduleData?.company?.state}
+            </Text>
+          </Box>
+
+          <Text size="lg" fw={700}>Serviços</Text>
+          <Grid justify="center">
+            {scheduleData?.schedule_items?.map((item, index) => (
+              <ScheduleItem
+                key={`scheduleItem-${item.service_id}`}
+                editValues={item}
+                showChangeButton={false}
+              />
             ))}
-          </Tabs.List>
-          <Tabs.Panel value="schedule">
-            {scheduleData && tab === 'schedule' && (
-              <Container size="100%" mb="xl" mt="xs">
-                <FormSchedule.Basic scheduleData={scheduleData} />
-              </Container>
-            )}
-          </Tabs.Panel>
-        </Tabs>
+          </Grid>
+
+          <Group justify="center">
+            <Button
+              size="lg"
+              color="green"
+              onClick={() => {}}>
+              Confirmar agendamento
+            </Button>
+            <Button size="lg" color="red" onClick={() => {}}>Cancelar agendamento</Button>
+          </Group>
+        </Stack>
       </Stack>
     </Container>
   )

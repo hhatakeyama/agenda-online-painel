@@ -134,7 +134,7 @@ function Categories() {
             <Pagination total={last_page} defaultValue={page} onChange={setPage} />
           </Center>
         )}
-      </Stack >
+      </Stack>
 
       <Modal opened={register} onClose={() => setRegister(false)} title="Cadastrar categoria" centered>
         <FormCategory.Basic onClose={() => {
@@ -142,7 +142,7 @@ function Categories() {
           mutate()
         }} />
       </Modal>
-    </Container >
+    </Container>
   )
 }
 

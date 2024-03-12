@@ -7,7 +7,6 @@ import { DatesProvider } from '@mantine/dates'
 import { SWRConfig } from 'swr'
 
 import AuthProvider from '@/providers/AuthProvider'
-import ScheduleProvider from '@/providers/ScheduleProvider'
 import { fetcher } from '@/utils'
 
 export default function Providers({ children }) {
@@ -16,9 +15,7 @@ export default function Providers({ children }) {
       <SWRConfig value={{ fetcher, revalidateOnFocus: false }}>
         <DatesProvider settings={{ locale: 'pt-br', firstDayOfWeek: 0, weekendDays: [0], timezone: 'America/Sao_Paulo' }}>
           <AuthProvider>
-            <ScheduleProvider>
-              {children}
-            </ScheduleProvider>
+            {children}
           </AuthProvider>
         </DatesProvider>
       </SWRConfig>

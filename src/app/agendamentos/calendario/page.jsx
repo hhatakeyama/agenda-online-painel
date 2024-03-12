@@ -14,8 +14,7 @@ import { FormSchedule } from '@/components/forms';
 import guardAccount from '@/guards/AccountGuard'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
-import { dateToHuman } from '@/utils'
-import { dateToDatabase, generateHourList } from '@/utils/dateFormatter';
+import { dateToDatabase, dateToHuman, generateHourList } from '@/utils/dateFormatter';
 
 import classes from './Calendar.module.css'
 
@@ -35,12 +34,13 @@ function Calendar() {
   const [searchEmployees, setSearchEmployees] = useState([])
   const [date, setDate] = useState(today)
   const [register, setRegister] = useState(false)
+  const [company, setCompany] = useState(null)
 
   // Fetch
-  const { data, error, mutate } = useFetch([isAuthenticated ? `/admin/companies` : null, { organization_id: userData?.organization_id || searchOrganization }])
+  const { data, error } = useFetch([isAuthenticated ? `/admin/companies` : null, { organization_id: userData?.organization_id || searchOrganization }])
   const { data: resultsCompanies = [] } = data?.data || {}
   const optionsCompanies =
-    resultsCompanies.map(company => ({ label: company.name, value: company.id.toString() })) || []
+    resultsCompanies.map(item => ({ label: item.name, value: item.id.toString() })) || []
 
   const { data: dataServices } = useFetch([
     permissionsData?.sag ? `/admin/services` : null,
@@ -76,7 +76,7 @@ function Calendar() {
   const { data: results = [] } = dataSchedules || {}
   const loading = !data && !error
 
-  const selectedCompany = resultsCompanies.find(company => company.id === Number(searchCompany))
+  const selectedCompany = resultsCompanies.find(item => item.id === Number(searchCompany))
   const dayOfWeeks = selectedCompany?.days_of_weeks?.find(dayOfWeek => dayOfWeek.day_of_week === date.getDay()) || []
   const hourList = generateHourList(date, dayOfWeeks, '00:30')
 
@@ -90,7 +90,10 @@ function Calendar() {
 
   // Effects
   useEffect(() => {
-    if (resultsCompanies.length === 1) setSearchCompany(resultsCompanies[0].id.toString())
+    if (resultsCompanies.length === 1) {
+      setCompany(resultsCompanies[0])
+      setSearchCompany(resultsCompanies[0].id.toString())
+    }
   }, [resultsCompanies])
 
   // Validations
@@ -134,7 +137,11 @@ function Calendar() {
                   placeholder="Unidade"
                   data={optionsCompanies}
                   value={searchCompany}
-                  onChange={setSearchCompany}
+                  onChange={option => {
+                    const selectedCompany = resultsCompanies.find(item => item.id === option)
+                    setCompany(selectedCompany)
+                    setSearchCompany(option)
+                  }}
                   searchable
                   clearable
                 />
@@ -254,8 +261,8 @@ function Calendar() {
         </Stack>
       </Container>
 
-      <Modal opened={register} onClose={() => setRegister(false)} title="Agendar" centered>
-        <FormSchedule.Basic mutate={mutate} />
+      <Modal opened={register} onClose={() => setRegister(false)} title="Agendar" centered size="xl">
+        {company && <FormSchedule.Basic company={company} />}
       </Modal>
     </>
   )

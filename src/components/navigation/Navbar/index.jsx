@@ -33,8 +33,7 @@ export default function Navbar() {
       className={classes.link}
       data-active={pathname.indexOf(item.link) !== -1 || undefined}
       href={item.link}
-      key={item.label}
-    >
+      key={item.label}>
       <item.icon className={classes.linkIcon} stroke={1.5} />
       <span>{item.label}</span>
     </Link>

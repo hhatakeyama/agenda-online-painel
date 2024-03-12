@@ -145,7 +145,7 @@ function Company() {
           </Tabs.Panel>
         </Tabs>
       </Stack>
-    </Container >
+    </Container>
   )
 }
 

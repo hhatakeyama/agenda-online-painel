@@ -1,35 +1,34 @@
 import '@mantine/dates/styles.css';
 
-import { Box, Button, Center, Container, Divider, Grid, Group, Modal, Paper, Stack, Stepper, Text, Title, useMantineTheme } from '@mantine/core'
+import { Box, Button, Center, Divider, Grid, Group, Modal, Paper, Stack, Stepper, Text, useMantineTheme } from '@mantine/core'
 import { DatePicker } from '@mantine/dates'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { IconCheck } from '@tabler/icons-react'
-import { useParams, useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import React, { useState } from 'react'
 
-import { FormLogin, FormUser } from '@/components/forms'
 import { useFetch } from '@/hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { useSchedule } from '@/providers/ScheduleProvider'
 import { api, dateToHuman, generateUnavailableHourList, minutesToHours, parseMinutes } from '@/utils'
 import { currencyValue } from '@/utils/converter'
 
+import ClientSelector from './ClientSelector';
 import EmployeesSelector from './EmployeesSelector'
 import HourList from './HourList'
 import ScheduleItem from './ScheduleItem'
+import ServicesSelector from './ServicesSelector';
 
-export default function Basic({ scheduleData }) {
+export default function Basic({ company }) {
   // Hooks
   const theme = useMantineTheme()
   const router = useRouter()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
-  const { isAuthenticated, login, userData } = useAuth()
-  const { organizationSlug } = useParams()
+  const { isAuthenticated } = useAuth()
   const { schedule, selectedServices, smallestDuration, handleChangeSchedule, handleChangeScheduleItem, handleClearSchedule } = useSchedule()
 
   // Constants
-  const company = scheduleData?.company || {}
   const today = new Date()
   const todayDayOfWeek = company?.days_of_weeks?.find?.(item => Number(item.day_of_week) === schedule.date?.getDay?.())
   const canSubmit = schedule.date && schedule.start_time && schedule.items.length > 0
@@ -41,7 +40,6 @@ export default function Basic({ scheduleData }) {
   })
 
   // States
-  const [register, setRegister] = useState(false)
   const [step, setStep] = useState(0)
   const [openSelectEmployees, setOpenSelectEmployees] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -49,7 +47,7 @@ export default function Basic({ scheduleData }) {
 
   // Fetch
   const { data, isValidating } = useFetch([
-    organizationSlug && company?.id && selectedServices && schedule.date ? `/admin/schedules/unavailables` : null,
+    company?.id && selectedServices && schedule.date ? `/admin/schedules/unavailables` : null,
     {
       company: company?.id,
       date: schedule.date ? new Date(schedule.date).toISOString() : today,
@@ -80,13 +78,13 @@ export default function Basic({ scheduleData }) {
     return await api
       .post(`/api/admin/schedules`, {
         company_id: company?.id,
-        client_id: userData.id,
+        client_id: schedule.client_id,
         date: schedule.date.toISOString(),
         items: newItems
       })
       .then(() => {
         handleClearSchedule()
-        setStep(3)
+        setStep(4)
       })
       .catch(error =>
         notifications.show({
@@ -111,15 +109,13 @@ export default function Basic({ scheduleData }) {
     handleChangeScheduleItem(itemIndex, { employee_id: employee?.id || null })
   }
 
-  // Effects
-  useEffect(() => {
-    if (isAuthenticated && userData && step === 1) setStep(2)
-  }, [isAuthenticated, step, userData])
-
   return (
     <>
       <Stepper color="orange" active={step} onStepClick={setStep}>
-        <Stepper.Step label="Agendamento" description="Serviços" disabled={step === 3}>
+        <Stepper.Step label="Serviços" description="Serviços" disabled={step === 4}>
+          {company && <ServicesSelector company={company} />}
+        </Stepper.Step>
+        <Stepper.Step label="Agendamento" description="Serviços" disabled={selectedServices.length === 0 || step === 4}>
           <Stack pos="relative">
             <Grid>
               <Grid.Col span={{ base: 12, xs: 6, sm: 5 }}>
@@ -177,44 +173,10 @@ export default function Basic({ scheduleData }) {
             </Group>
           </Stack>
         </Stepper.Step>
-        <Stepper.Step label="Autenticação" description="Login/Cadastro" icon={isAuthenticated ? <IconCheck /> : null} disabled={!canSubmit || isAuthenticated || step === 3}>
-          <Container size="xl" style={{ maxWidth: '400px', width: '100%' }}>
-            <Paper withBorder shadow="md" p={30} mb={30} radius="md" pos="relative">
-              {register ? (
-                <Stack>
-                  <Title order={3} ta="center">
-                    Cadastro
-                  </Title>
-                  <Text c="dimmed" fz="sm" ta="center">
-                    Preencha os campos abaixo para se cadastrar.
-                  </Text>
-                  <FormUser.Basic />
-                  <Center>
-                    <Text size="sm" c="orange" component="a" onClick={() => setRegister(false)} style={{ cursor: 'pointer' }}>
-                      já tenho login
-                    </Text>
-                  </Center>
-                </Stack>
-              ) : (
-                <Stack>
-                  <Title order={3} ta="center">
-                    Login
-                  </Title>
-                  <Text c="dimmed" fz="sm" ta="center">
-                    Faça seu login abaixo.
-                  </Text>
-                  <FormLogin.Basic onSubmit={login} />
-                  <Center>
-                    <Text size="sm" c="orange" component="a" onClick={() => setRegister(true)} style={{ cursor: 'pointer' }}>
-                      ou cadastre-se
-                    </Text>
-                  </Center>
-                </Stack>
-              )}
-            </Paper>
-          </Container>
-        </Stepper.Step >
-        <Stepper.Step label="Resumo" description="Confirmação" disabled={!canSubmit || !isAuthenticated || step === 3}>
+        <Stepper.Step label="Cliente" description="Login/Cadastro" icon={schedule?.client_id ? <IconCheck /> : null} disabled={!canSubmit || step === 4}>
+          {selectedServices && schedule.date && step === 2 && <ClientSelector />}
+        </Stepper.Step>
+        <Stepper.Step label="Resumo" description="Confirmação" disabled={!canSubmit || !schedule?.client_id || step === 4}>
           <Stack>
             <Box>
               <Text size="lg"><strong>Data</strong>: {dateToHuman(schedule.date, 'date')}</Text>
@@ -239,7 +201,7 @@ export default function Basic({ scheduleData }) {
             </Grid>
 
             <Group justify="center">
-              <Button size="lg" onClick={() => setStep(0)}>Reagendar</Button>
+              <Button size="lg" onClick={() => setStep(1)}>Reagendar</Button>
               <Button
                 size="lg"
                 color="green"
@@ -250,7 +212,7 @@ export default function Basic({ scheduleData }) {
             </Group>
           </Stack>
         </Stepper.Step>
-        <Stepper.Completed disabled={!isAuthenticated}>
+        <Stepper.Completed disabled={!schedule?.client_id}>
           <Stack>
             <Center>
               <Text c="green" size="xl" fw={700}>Agendamento realizado com sucesso!</Text>
@@ -277,7 +239,7 @@ export default function Basic({ scheduleData }) {
             </Group>
           </Stack>
         </Stepper.Completed>
-      </Stepper >
+      </Stepper>
 
       <Modal opened={openSelectEmployees !== null} onClose={() => setOpenSelectEmployees(null)} title="Selecionar Colaborador" centered size="xl">
         <EmployeesSelector

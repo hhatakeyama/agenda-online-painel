@@ -271,6 +271,6 @@ export default function Basic({ mutate, serviceData, onClose }) {
           Salvar
         </Button>
       </Group>
-    </form >
+    </form>
   )
 }

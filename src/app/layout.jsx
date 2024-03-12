@@ -41,6 +41,6 @@ export default function RootLayout({ children }) {
           </Stack>
         </Providers>
       </body>
-    </html >
+    </html>
   )
 }

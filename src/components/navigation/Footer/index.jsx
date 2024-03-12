@@ -14,15 +14,14 @@ const links = [
 export default function Footer() {
   // Hooks
   const { isAuthenticated } = useAuth()
-  
+
   // Constants
   const items = links.map((link) => (
     <Anchor
       key={link.label}
       href={link.link}
       onClick={(event) => event.preventDefault()}
-      size="sm"
-    >
+      size="sm">
       {link.label}
     </Anchor>
   ))

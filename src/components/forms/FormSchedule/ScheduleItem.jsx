@@ -1,11 +1,14 @@
 import { Avatar, Button, Divider, Grid, Paper, Stack, Text, Title } from '@mantine/core'
 import React from 'react'
 
+import { useSchedule } from '@/providers/ScheduleProvider'
 import { currencyValue } from '@/utils/converter'
 
 export default function ScheduleItem({ editValues, showChangeButton = true, onChangeEmployee }) {
+  // Hooks
+  const { selectedServices } = useSchedule()
+
   // Constants
-  const selectedServices = []
   const service = selectedServices.find(item => item.id === editValues.service_id) || {}
   const selectedEmployee = service?.employees?.find?.(item => item.id === editValues.employee_id)
   const canChooseEmployee = service?.can_choose_employee === 1

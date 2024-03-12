@@ -2,16 +2,17 @@ import { Avatar, Box, Group, LoadingOverlay, Stack, Text, UnstyledButton } from 
 import React from 'react'
 
 import { useAuth } from '@/providers/AuthProvider'
+import { useSchedule } from '@/providers/ScheduleProvider'
 import { parseMinutes } from '@/utils'
 
-import classes from './Cart.module.css'
+import classes from './Schedule.module.css'
 
 export default function EmployeesSelector({ scheduleItem, unavailables, onChange }) {
   // Hooks
   const { isValidating } = useAuth()
+  const { selectedServices } = useSchedule()
   
   // Constants
-  const selectedServices = []
   const service = scheduleItem ? selectedServices.find(item => item.id === scheduleItem.item?.service_id) : {}
   const hourUnavailables = unavailables && scheduleItem ? unavailables.filter(item => parseMinutes(item.start_time) === parseMinutes(scheduleItem.item?.start_time)) : []
   const selectedEmployee = scheduleItem && service ? service.employees?.find?.(item => item.id === scheduleItem.item?.employee_id) : {}

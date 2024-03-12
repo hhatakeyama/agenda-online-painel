@@ -46,8 +46,7 @@ export default function Header() {
               onClose={() => setUserMenuOpened(false)}
               onOpen={() => setUserMenuOpened(true)}
               withinPortal
-              styles={{ dropdown: { zIndex: 1001 } }}
-            >
+              styles={{ dropdown: { zIndex: 1001 } }}>
               <Menu.Target>
                 <UnstyledButton className={cx(classes.user, { [classes.userActive]: userMenuOpened })}>
                   <Group gap={7}>
@@ -89,6 +88,6 @@ export default function Header() {
           )}
         </Group>
       </Container>
-    </div >
+    </div>
   )
 }
