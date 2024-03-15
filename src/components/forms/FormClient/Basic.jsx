@@ -13,7 +13,7 @@ import errorHandler from '@/utils/errorHandler'
 
 import * as Fields from './Fields'
 
-export default function Basic({ clientData, onClose }) {
+export default function Basic({ clientData, onClose, onCallback }) {
   // Hooks
   const theme = useMantineTheme()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
@@ -65,13 +65,14 @@ export default function Basic({ clientData, onClose }) {
           ...(password && password !== '' ? { password: password } : {}),
           ...(confirmPassword ? { password_confirmation: confirmPassword } : {})
         })
-        .then(() => {
+        .then(response => {
           if (editing) {
             mutateGlobal(`/api/admin/clients/${clientId}`)
             form.resetTouched()
             form.resetDirty()
           } else {
             onClose?.()
+            onCallback?.(response)
           }
           notifications.show({
             title: 'Sucesso',

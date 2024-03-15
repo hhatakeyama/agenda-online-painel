@@ -40,7 +40,7 @@ export default function Home() {
         <Text>Acesse o menu abaixo.</Text>
 
         <Group>
-          <Button component={Link} href="/agendamentos">Agendamentos</Button>
+          <Button component={Link} href={`/agendamentos${permissionsData?.ge ? '/calendario' : ''}`}>Agendamentos</Button>
           {permissionsData?.sa && (
             <Button component={Link} href="/empresa">Empresa</Button>
           )}

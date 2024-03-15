@@ -1,7 +1,7 @@
-import { Button, Center, Container, Group, Input, LoadingOverlay, Modal, Pagination, ScrollArea, Stack, Table, Text, Title } from '@mantine/core'
+import { Box, Button, Center, Container, Group, Input, LoadingOverlay, Modal, Pagination, ScrollArea, Stack, Table, Text, Title } from '@mantine/core'
 import React, { useState } from 'react'
 
-import { FormUser } from '@/components/forms'
+import { FormClient } from '@/components/forms'
 import { useFetch } from '@/hooks'
 import { useSchedule } from '@/providers/ScheduleProvider'
 
@@ -14,11 +14,15 @@ export default function ClientSelector() {
   // States
   const [register, setRegister] = useState(false)
   const [search, setSearch] = useState('')
+  const [searchFilter, setSearchFilter] = useState('')
 
   // Fetch
-  const { data, error } = useFetch([`/admin/clients`, { status: "1", search }])
+  const { data, error, isValidating, mutate } = useFetch([
+    searchFilter || schedule.client_id ? `/admin/clients` : null,
+    { status: "1", search: searchFilter, selected: schedule.client_id }
+  ])
   const { data: results = [], last_page } = data?.data || {}
-  const loading = !data && !error
+  const loading = !data && !error && isValidating
 
   function Th({ children }) {
     return (
@@ -32,16 +36,16 @@ export default function ClientSelector() {
     <>
       <Stack>
         <Group justify="space-between">
-          <Title order={3}>Clientes</Title>
-
+          <Input
+            name="search"
+            placeholder="Buscar por e-mail"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onBlur={() => setSearchFilter(search)}
+          />
           <Button size="sm" color="orange" onClick={() => setRegister(true)} style={{ cursor: 'pointer' }}>
             Cadastrar cliente
           </Button>
-        </Group>
-        <Text c="dimmed" fz="sm">Busque o cliente que vai fazer o atendimento.</Text>
-
-        <Group>
-          <Input name="search" placeholder="Buscar por e-mail" value={search} onChange={e => setSearch(e.target.value)} />
         </Group>
 
         <Stack pos="relative">
@@ -71,7 +75,11 @@ export default function ClientSelector() {
                       <Table.Td className={classes.td}>{row.mobilePhone || '--'}</Table.Td>
                       <Table.Td className={classes.td}>
                         <Group justify="flex-end">
-                          <Button size="compact-sm" color={selected ? 'orange' : 'blue'} title="Editar" onClick={() => handleChangeSchedule({ client_id: row.id })}>
+                          <Button
+                            size="compact-sm"
+                            color={selected ? 'orange' : 'blue'}
+                            title="Editar"
+                            onClick={() => handleChangeSchedule({ client_id: selected ? null : row.id })}>
                             {selected ? 'Selecionado' : 'Selecionar'}
                           </Button>
                         </Group>
@@ -80,9 +88,9 @@ export default function ClientSelector() {
                   )
                 }) : (
                   <Table.Tr>
-                    <Table.Td colSpan={5}>
+                    <Table.Td colSpan={4}>
                       <Text fw={500} ta="center">
-                        Nenhum cliente encontrado
+                        {searchFilter && results.length === 0 ? 'Nenhum cliente encontrado' : 'Busque pelo e-mail do cliente'}
                       </Text>
                     </Table.Td>
                   </Table.Tr>
@@ -103,7 +111,16 @@ export default function ClientSelector() {
             <Text c="dimmed" fz="sm" ta="center">
               Preencha os campos abaixo para cadastrar o cliente.
             </Text>
-            <FormUser.Basic onClose={() => { }} />
+            <FormClient.Basic
+              onClose={() => setRegister(false)}
+              onCallback={response => {
+                handleChangeSchedule({ client_id: response?.data?.client?.id })
+                setSearch(response?.data?.client?.name)
+                setSearchFilter(response?.data?.client?.name)
+                mutate()
+                setRegister(false)
+              }}
+            />
             <Center>
               <Text size="sm" c="orange" component="a" onClick={() => setRegister(false)} style={{ cursor: 'pointer' }}>
                 cliente já tem cadastro

@@ -1,13 +1,13 @@
 'use client'
 
-import { Button, Collapse, Group, Input, Paper, Stack, Table, Text, Title } from '@mantine/core'
+import { Button, Collapse, Group, Paper, Stack, Table, Text, Title } from '@mantine/core'
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 import React, { useState } from 'react'
 
 import { useSchedule } from '@/providers/ScheduleProvider'
 import { currencyValue } from '@/utils/converter'
 
-export default function ServicesSelector({ company }) {
+export default function ServicesSelector({ company, search }) {
   // Hooks
   const { selectedServices, handleAddRemoveService } = useSchedule()
 
@@ -29,7 +29,6 @@ export default function ServicesSelector({ company }) {
 
   // States
   const [open, setOpen] = useState([]);
-  const [search, setSearch] = useState('');
 
   // Actions
   const handleOpenService = category => {
@@ -41,12 +40,7 @@ export default function ServicesSelector({ company }) {
   }
 
   return (
-    <>
-      <Title order={2}>Serviços</Title>
-      <Group>
-        <Input name="search" placeholder="Buscar por nome" value={search} onChange={e => setSearch(e.target.value)} />
-      </Group>
-
+    <Stack>
       {categories.map(category => {
         const hasServices = category.services?.filter(itemService => itemService.name.indexOf(search) !== -1).length
         return hasServices ? (
@@ -86,6 +80,6 @@ export default function ServicesSelector({ company }) {
           </Paper>
         ) : null
       })}
-    </>
+    </Stack>
   )
 }

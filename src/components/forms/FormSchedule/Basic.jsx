@@ -1,6 +1,6 @@
 import '@mantine/dates/styles.css';
 
-import { Box, Button, Center, Divider, Grid, Group, Modal, Paper, Stack, Stepper, Text, useMantineTheme } from '@mantine/core'
+import { Box, Button, Center, Divider, Grid, Group, Input, Modal, Paper, Stack, Stepper, Text, useMantineTheme } from '@mantine/core'
 import { DatePicker } from '@mantine/dates'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
@@ -40,6 +40,7 @@ export default function Basic({ company }) {
   })
 
   // States
+  const [searchService, setSearchService] = useState('')
   const [step, setStep] = useState(0)
   const [openSelectEmployees, setOpenSelectEmployees] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -113,7 +114,26 @@ export default function Basic({ company }) {
     <>
       <Stepper color="orange" active={step} onStepClick={setStep}>
         <Stepper.Step label="Serviços" description="Serviços" disabled={step === 4}>
-          {company && <ServicesSelector company={company} />}
+          <Stack>
+            <Group justify="space-between">
+              <Input name="search" placeholder="Buscar por nome" value={searchService} onChange={e => setSearchService(e.target.value)} />
+              <Button
+                disabled={!selectedServices.length}
+                color="green"
+                onClick={() => setStep(1)}>
+                Continuar
+              </Button>
+            </Group>
+            {company && <ServicesSelector company={company} search={searchService} />}
+            <Group justify="flex-end">
+              <Button
+                disabled={!selectedServices.length}
+                color="green"
+                onClick={() => setStep(1)}>
+                Continuar
+              </Button>
+            </Group>
+          </Stack>
         </Stepper.Step>
         <Stepper.Step label="Agendamento" description="Serviços" disabled={selectedServices.length === 0 || step === 4}>
           <Stack pos="relative">
@@ -175,6 +195,14 @@ export default function Basic({ company }) {
         </Stepper.Step>
         <Stepper.Step label="Cliente" description="Login/Cadastro" icon={schedule?.client_id ? <IconCheck /> : null} disabled={!canSubmit || step === 4}>
           {selectedServices && schedule.date && step === 2 && <ClientSelector />}
+          <Group justify="flex-end">
+            <Button
+              disabled={!schedule.client_id}
+              color="green"
+              onClick={() => setStep(3)}>
+              Continuar
+            </Button>
+          </Group>
         </Stepper.Step>
         <Stepper.Step label="Resumo" description="Confirmação" disabled={!canSubmit || !schedule?.client_id || step === 4}>
           <Stack>

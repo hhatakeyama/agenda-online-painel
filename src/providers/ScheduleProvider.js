@@ -60,6 +60,8 @@ function useProvideSchedule() {
         return newScheduleItem
       })
       setSchedule(prevState => ({ ...prevState, items: newItems }))
+    } else if (newValue.client_id) {
+      setSchedule(prevState => ({ ...prevState, client_id: newValue.client_id }))
     } else {
       const newItems = schedule.items.map(item => ({
         ...item, start_time: '', end_time: '', employee_id: null

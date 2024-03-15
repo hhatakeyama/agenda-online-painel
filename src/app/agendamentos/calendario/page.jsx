@@ -43,7 +43,7 @@ function Calendar() {
     resultsCompanies.map(item => ({ label: item.name, value: item.id.toString() })) || []
 
   const { data: dataServices } = useFetch([
-    permissionsData?.sag ? `/admin/services` : null,
+    '/admin/services',
     {
       organization_id: searchOrganization,
       ...(optionsCompanies.length > 1 && searchCompany ? { company: searchCompany } : {})
@@ -54,7 +54,7 @@ function Calendar() {
     resultsServices.map(employee => ({ label: employee.name, value: employee.id.toString() })) || []
 
   const { data: dataEmployees } = useFetch([
-    permissionsData?.sag ? `/admin/employees` : null,
+    '/admin/employees',
     {
       organization_id: searchOrganization,
       ...(searchServices ? { services: searchServices } : {})
@@ -147,7 +147,7 @@ function Calendar() {
                 />
               </Grid.Col>
             )}
-            <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
+            <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
               <TextInput
                 placeholder="Buscar por nome ou e-mail do cliente"
                 leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
@@ -156,28 +156,24 @@ function Calendar() {
                 onBlur={event => setSearchFilter(event.target.value)}
               />
             </Grid.Col>
-            {permissionsData?.sag && (
-              <>
-                <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
-                  <MultiSelect
-                    placeholder="Serviços"
-                    data={optionsServices}
-                    searchable
-                    value={searchServices}
-                    onChange={option => setSearchServices(option)}
-                  />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
-                  <MultiSelect
-                    placeholder="Colaboradores"
-                    data={optionsEmployees}
-                    searchable
-                    value={searchEmployees}
-                    onChange={option => setSearchEmployees(option)}
-                  />
-                </Grid.Col>
-              </>
-            )}
+            <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
+              <MultiSelect
+                placeholder="Serviços"
+                data={optionsServices}
+                searchable
+                value={searchServices}
+                onChange={option => setSearchServices(option)}
+              />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
+              <MultiSelect
+                placeholder="Colaboradores"
+                data={optionsEmployees}
+                searchable
+                value={searchEmployees}
+                onChange={option => setSearchEmployees(option)}
+              />
+            </Grid.Col>
           </Grid>
           <Divider />
         </Stack>
@@ -226,9 +222,9 @@ function Calendar() {
                             <Table.Td className={classes.td}>
                               {row.start_time} - {row.end_time}
                             </Table.Td>
-                            <Table.Td className={classes.td}><Display.Status status={row.confirmed} labels={['Sim', 'Não']} /></Table.Td>
-                            <Table.Td className={classes.td}><Display.Status status={row.canceled} labels={['Sim', 'Não']} /></Table.Td>
-                            <Table.Td className={classes.td}><Display.Status status={row.done} labels={['Sim', 'Não']} /></Table.Td>
+                            <Table.Td className={classes.td}><Display.Status status={row.schedule?.confirmed} labels={['Sim', 'Não']} /></Table.Td>
+                            <Table.Td className={classes.td}><Display.Status status={row.schedule?.canceled} labels={['Sim', 'Não']} /></Table.Td>
+                            <Table.Td className={classes.td}><Display.Status status={row.schedule?.done} labels={['Sim', 'Não']} /></Table.Td>
                             <Table.Td className={classes.td}>{row.created_at ? dateToHuman(row.created_at) : ''}</Table.Td>
                             <Table.Td className={classes.td}>
                               <Group gap="xs">
