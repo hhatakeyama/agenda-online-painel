@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Card, Grid, Group, NumberInput, Stack, Switch, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core'
+import { ActionIcon, Button, Card, Grid, Group, NumberInput, Text, TextInput, useMantineTheme } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
@@ -20,26 +20,26 @@ export default function Services({ mutate, serviceData, onRemove }) {
     company_id: serviceData?.company_id || '',
     description: serviceData?.description || '',
     duration: serviceData?.duration || '',
-    email_message: serviceData?.email_message || '',
     price: serviceData?.price || '0,00',
-    send_email: serviceData?.send_email === 1 || serviceData?.send_email === "1" || false,
-    send_sms: serviceData?.send_sms === 1 || serviceData?.send_sms === "1" || false,
     service_id: serviceData?.service_id || '',
-    sms_message: serviceData?.sms_message || '',
     status: serviceData?.status || '1',
+    // email_message: serviceData?.email_message || '',
+    // sms_message: serviceData?.sms_message || '',
+    // send_email: serviceData?.send_email === 1 || serviceData?.send_email === "1" || false,
+    // send_sms: serviceData?.send_sms === 1 || serviceData?.send_sms === "1" || false,
   }
 
   const schema = Yup.object().shape({
     company_id: Yup.number(),
     description: Yup.string().nullable(),
     duration: Yup.string().nullable(),
-    email_message: Yup.string().nullable(),
     price: Yup.number().moreThan(0, "Valor obrigatório").required("Valor obrigatório"),
-    send_email: Yup.boolean().nullable(),
-    send_sms: Yup.boolean().nullable(),
     service_id: Yup.number(),
-    sms_message: Yup.string().nullable(),
     status: Yup.string().nullable(),
+    // email_message: Yup.string().nullable(),
+    // sms_message: Yup.string().nullable(),
+    // send_email: Yup.boolean().nullable(),
+    // send_sms: Yup.boolean().nullable(),
   })
 
   // Mantine form
@@ -120,7 +120,7 @@ export default function Services({ mutate, serviceData, onRemove }) {
               />
             </Grid.Col>
 
-            <Grid.Col span={{ xs: 12 }}>
+            {/* <Grid.Col span={{ xs: 12 }}>
               <Stack>
                 <Switch {...form.getInputProps(`send_email`)} checked={form.values.send_email} label="Enviar e-mail" />
                 <Textarea
@@ -144,7 +144,7 @@ export default function Services({ mutate, serviceData, onRemove }) {
                   maxLength={160}
                 />
               </Stack>
-            </Grid.Col>
+            </Grid.Col> */}
           </Grid>
         </Card.Section>
         <Card.Section p="md">

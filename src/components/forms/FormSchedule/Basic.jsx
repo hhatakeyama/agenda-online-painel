@@ -5,7 +5,6 @@ import { DatePicker } from '@mantine/dates'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { IconCheck } from '@tabler/icons-react'
-import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
 import { useFetch } from '@/hooks'
@@ -23,7 +22,6 @@ import ServicesSelector from './ServicesSelector';
 export default function Basic({ company }) {
   // Hooks
   const theme = useMantineTheme()
-  const router = useRouter()
   const isXs = useMediaQuery(`(max-width: ${theme.breakpoints.xs}px)`)
   const { isAuthenticated } = useAuth()
   const { schedule, selectedServices, smallestDuration, handleChangeSchedule, handleChangeScheduleItem, handleClearSchedule } = useSchedule()
@@ -261,10 +259,6 @@ export default function Basic({ company }) {
                 </Box>
               </Stack>
             )}
-
-            <Group justify="center" my="md">
-              <Button onClick={() => router.push('/minha-conta/agendamentos')}>Ver meus agendamentos</Button>
-            </Group>
           </Stack>
         </Stepper.Completed>
       </Stepper>

@@ -1,4 +1,4 @@
-import { Button, Grid, Group, LoadingOverlay, NumberInput, Select, Stack, Switch, Textarea, TextInput, Tooltip, useMantineTheme } from '@mantine/core'
+import { Button, Grid, Group, LoadingOverlay, NumberInput, Select, Stack, Textarea, TextInput, Tooltip, useMantineTheme } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import { useMediaQuery } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
@@ -36,8 +36,8 @@ export default function Basic({ mutate, serviceData, onClose }) {
     serviceCategory_id: serviceData?.serviceCategory_id?.toString?.() || null,
     price: serviceData?.price || 0.00,
     duration: serviceData?.duration || '00:00',
-    send_email: serviceData?.send_email === 1 || serviceData?.send_email === "1" || false,
-    send_sms: serviceData?.send_sms === 1 || serviceData?.send_sms === "1" || false,
+    // send_email: serviceData?.send_email === 1 || serviceData?.send_email === "1" || false,
+    // send_sms: serviceData?.send_sms === 1 || serviceData?.send_sms === "1" || false,
     email_message: serviceData?.email_message || '',
     sms_message: serviceData?.sms_message || '',
     can_choose_random: serviceData?.can_choose_random?.toString?.() || "1",
@@ -53,8 +53,8 @@ export default function Basic({ mutate, serviceData, onClose }) {
     serviceCategory_id: Yup.number().required(),
     price: Yup.number().nullable().moreThan(0, "Valor obrigatório").required("Valor obrigatório"),
     duration: Yup.string().required(),
-    send_email: Yup.string().required(),
-    send_sms: Yup.string().required(),
+    // send_email: Yup.string().required(),
+    // send_sms: Yup.string().required(),
     email_message: Yup.string().nullable(),
     sms_message: Yup.string().max(160, "Limite de 160 caracteres").nullable(),
     can_choose_random: Yup.number().required(),
@@ -181,7 +181,7 @@ export default function Basic({ mutate, serviceData, onClose }) {
               </Grid.Col>
               <Grid.Col span={{ xs: 12 }}>
                 <Stack>
-                  <Switch {...form.getInputProps(`send_email`)} checked={form.values.send_email} label="Enviar e-mail" />
+                  {/* <Switch {...form.getInputProps(`send_email`)} checked={form.values.send_email} label="Enviar e-mail" /> */}
                   <Textarea
                     {...form.getInputProps(`email_message`)}
                     disabled={isSubmitting}
@@ -193,7 +193,7 @@ export default function Basic({ mutate, serviceData, onClose }) {
               </Grid.Col>
               <Grid.Col span={{ xs: 12 }}>
                 <Stack>
-                  <Switch {...form.getInputProps(`send_sms`)} checked={form.values.send_sms} label="Enviar SMS" />
+                  {/* <Switch {...form.getInputProps(`send_sms`)} checked={form.values.send_sms} label="Enviar SMS" /> */}
                   <Textarea
                     {...form.getInputProps(`sms_message`)}
                     disabled={isSubmitting}
